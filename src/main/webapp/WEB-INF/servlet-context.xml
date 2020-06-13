@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="
+http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+	<context:component-scan
+		base-package="webservices.telegram.controller" />
+
+	<mvc:annotation-driven>
+		<mvc:message-converters>
+			<bean scope="singleton"
+				class="webservices.telegram.converter.user.JsonUserConverter" />
+			<bean scope="singleton"
+				class="webservices.telegram.converter.user.UserPhotoConverter" />
+			<bean scope="singleton"
+				class="webservices.telegram.converter.user.AuthConverter" />
+			<bean scope="singleton"
+				class="webservices.telegram.converter.user.UserRegistrationMultipartConverter" />
+			<bean scope="singleton"
+				class="webservices.telegram.converter.user.MultiPartUserConverter" />
+			<bean scope="singleton"
+				class="webservices.telegram.converter.user.AuthMultipartConverter" />
+		</mvc:message-converters>
+	</mvc:annotation-driven>
+
+	<bean id="user-controller"
+		class="webservices.telegram.controller.UserController">
+		<constructor-arg ref="mysql-user-dao" />
+	</bean>
+
+	<bean id="authentication-controller"
+		class="webservices.telegram.controller.AuthenticationController">
+		<constructor-arg ref="mysql-user-dao" />
+	</bean>
+
+	<bean id="mysql-user-dao"
+		class="webservices.telegram.dao.user.DatabaseUserDaoImpl" />
+
+</beans>

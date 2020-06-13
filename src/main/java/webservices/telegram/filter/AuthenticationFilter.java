@@ -26,7 +26,7 @@ public class AuthenticationFilter implements Filter {
 		HttpServletResponse resp = (HttpServletResponse) response;
 		HttpSession session = req.getSession(false);
 		String uri = req.getRequestURI();
-		if (req.getMethod().equals("GET") && uri.equals("/telegram/auth/login")) {
+		if (req.getMethod().equals("GET") && uri.equals("/telegram/login")) {
 			chain.doFilter(request, response);
 			return;
 		}
@@ -36,7 +36,7 @@ public class AuthenticationFilter implements Filter {
 			return;
 		}
 
-		if (req.getMethod().equals("GET") && uri.equals("/telegram/auth/logout")) {
+		if (req.getMethod().equals("GET") && uri.equals("/telegram/logout")) {
 			chain.doFilter(request, response);
 			return;
 		}

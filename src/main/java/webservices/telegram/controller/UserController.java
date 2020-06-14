@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.SessionAttribute;
 
 import webservices.telegram.dao.user.UserDAO;
+import webservices.telegram.dto.user.UserListResponse;
 import webservices.telegram.dto.user.UserRegistrationRequest;
 import webservices.telegram.exception.UserDaoException;
 import webservices.telegram.model.user.Authentication;
@@ -30,6 +31,12 @@ public class UserController {
 
 	public UserController(UserDAO userDAO) {
 		this.userDAO = userDAO;
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value = { "", "/" }, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public UserListResponse getUsers() throws IllegalArgumentException, UserDaoException {
+		return new UserListResponse(userDAO.getAll());
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)

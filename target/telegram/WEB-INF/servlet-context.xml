@@ -27,6 +27,8 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
 				class="webservices.telegram.converter.user.MultiPartUserConverter" />
 			<bean scope="singleton"
 				class="webservices.telegram.converter.user.AuthMultipartConverter" />
+			<bean scope="singleton"
+				class="webservices.telegram.converter.user.UserListJsonConverter" />
 		</mvc:message-converters>
 	</mvc:annotation-driven>
 

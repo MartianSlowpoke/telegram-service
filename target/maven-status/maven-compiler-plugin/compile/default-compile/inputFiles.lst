@@ -5,7 +5,9 @@
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/dao/user/UserHandler.java
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/exception/user/NotFoundByCredentialsException.java
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/converter/user/UserPhotoConverter.java
+/home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/dto/user/UserListResponse.java
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/dao/user/GeneratedKeyHandler.java
+/home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/converter/user/UserListJsonConverter.java
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/exception/user/UserNotFoundException.java
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/dao/user/UserDAO.java
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/converter/user/MultiPartUserConverter.java

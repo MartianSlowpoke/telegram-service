@@ -13,12 +13,11 @@ import org.apache.commons.dbutils.ResultSetHandler;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
 
-import webservices.telegram.exception.DaoIllegalException;
+import webservices.telegram.exception.BadRequestDataException;
+import webservices.telegram.exception.ResourceNotFoundException;
 import webservices.telegram.exception.UserDaoException;
-import webservices.telegram.exception.user.NotFoundByCredentialsException;
 import webservices.telegram.exception.user.NotValidAuthDataException;
 import webservices.telegram.exception.user.UserNotFoundException;
-import webservices.telegram.exception.user.UserPhotoNotFoundException;
 import webservices.telegram.model.user.Authentication;
 import webservices.telegram.model.user.AuthenticationBuilder;
 import webservices.telegram.model.user.User;
@@ -51,28 +50,17 @@ public class DatabaseUserDaoImpl implements UserDAO {
 	private MysqlDataSource source;
 	private QueryRunner runner;
 
-	public DatabaseUserDaoImpl() {
-		this.initSource();
+	public DatabaseUserDaoImpl(MysqlDataSource source) {
+		this.source = source;
 		this.runner = new QueryRunner(source);
 	}
 
-	private void initSource(DatabaseUserDaoImpl this) {
-		this.source = new MysqlDataSource();
-		this.source.setUser("root");
-		this.source.setPassword("1111");
-		this.source.setDatabaseName("chat");
-		this.source.setURL(source.getURL()
-				+ "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&autoReconnect=true&useSSL=false");
-	}
-
 	@Override
-	public void add(User user, Authentication authentication) throws UserDaoException, IllegalArgumentException {
-		if (user.getId() != null)
-			throw new IllegalArgumentException("user id must be null");
+	public void add(User user, Authentication authentication) throws UserDaoException, NotValidAuthDataException {
 		if (user.getLogin() == null)
-			throw new IllegalArgumentException("user login is null");
+			throw new NotValidAuthDataException("user login is null");
 		if (authentication.getEmail() == null || authentication.getPassword() == null)
-			throw new IllegalArgumentException("not valid credentials");
+			throw new NotValidAuthDataException("not valid credentials");
 		boolean existEmail = this.existEmail(authentication.getEmail());
 		boolean existLogin = this.existLogin(user.getLogin());
 		if (existEmail || existLogin)
@@ -95,13 +83,17 @@ public class DatabaseUserDaoImpl implements UserDAO {
 			statement.executeUpdate();
 			statement.close();
 			statement = connection.prepareStatement(SQL_INSERT_PHOTO);
-			setParams(statement, null, null, user.getId());
+			if (user.getPhoto() != null) {
+				setParams(statement, user.getPhoto().getFileName(), user.getPhoto().getFileData(), user.getId());
+			} else {
+				setParams(statement, null, null, user.getId());
+			}
 			statement.executeUpdate();
 			statement.close();
 			connection.commit();
 		} catch (SQLException e) {
 			e.printStackTrace();
-			throw new UserDaoException(e);
+			throw new UserDaoException(e.getMessage());
 		}
 	}
 
@@ -114,10 +106,10 @@ public class DatabaseUserDaoImpl implements UserDAO {
 					authentication.getPassword());
 			if (userId == null)
 				// return 404 http error code
-				throw new NotFoundByCredentialsException();
+				throw new ResourceNotFoundException("this authentication data does not belong to any user");
 			return get(userId);
 		} catch (SQLException e) {
-			throw new UserDaoException(e);
+			throw new UserDaoException(e.getMessage());
 		}
 	}
 
@@ -128,17 +120,18 @@ public class DatabaseUserDaoImpl implements UserDAO {
 			ResultSetHandler<Collection<User>> userHandler = new UserHandler();
 			Collection<User> users = runner.query(connection, SQL_GET_USER_BY_ID, userHandler, id);
 			if (users.size() == 0)
-				throw new UserNotFoundException("a user with id " + id + " is not found");
+				throw new ResourceNotFoundException("this id [" + id + "] doesn't belong to any user");
 			User user = users.iterator().next();
 			try {
-				user.setPhoto(getPhoto(user.getId()));
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
+				UserPhoto photo = getPhoto(user.getId());
+				user.setPhoto(photo);
+			} catch (ResourceNotFoundException e) {
+
 			}
 			return user;
 		} catch (SQLException e) {
 			e.printStackTrace();
-			throw new UserDaoException(e);
+			throw new UserDaoException(e.getMessage());
 		}
 	}
 
@@ -149,18 +142,21 @@ public class DatabaseUserDaoImpl implements UserDAO {
 	}
 
 	@Override
-	public UserPhoto getPhoto(Long userId) throws UserDaoException, IllegalArgumentException {
+	public UserPhoto getPhoto(Long userId) throws UserDaoException {
 		try {
 			Connection connection = source.getConnection();
 			ResultSetHandler<UserPhoto> userHandler = new UserPhotoHandler();
-			UserPhoto user = runner.query(connection, SQL_GET_USER_PHOTO, userHandler, userId);
-			if (user == null) {
-				throw new UserPhotoNotFoundException("UserPhoto is not found");
+			UserPhoto photo = runner.query(connection, SQL_GET_USER_PHOTO, userHandler, userId);
+			if (photo == null) {
+				throw new ResourceNotFoundException("a user [" + userId + "] doesn't have any photo");
 			}
-			return user;
+			if (photo.getFileData() == null) {
+				throw new ResourceNotFoundException("a user [" + userId + "] doesn't have any user");
+			}
+			return photo;
 		} catch (SQLException e) {
 			e.printStackTrace();
-			throw new UserDaoException(e);
+			throw new UserDaoException(e.getMessage());
 		}
 	}
 
@@ -172,15 +168,12 @@ public class DatabaseUserDaoImpl implements UserDAO {
 					authentication.getUserId());
 		} catch (SQLException e) {
 			e.printStackTrace();
+			throw new BadRequestDataException(e.getMessage());
 		}
 	}
 
 	@Override
 	public void update(User user) throws UserDaoException, IllegalArgumentException {
-		if (user.getId() == null)
-			throw new IllegalArgumentException("user id is null");
-		if (user.getLogin() == null)
-			throw new IllegalArgumentException("user login is null");
 		try {
 			Connection connection = source.getConnection();
 			runner.update(connection, SQL_UPDATE_USER, user.getLogin(), user.getFirstName(), user.getLastName(),
@@ -192,41 +185,37 @@ public class DatabaseUserDaoImpl implements UserDAO {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-			throw new UserDaoException(e);
+			throw new UserDaoException(e.getMessage());
 		}
 	}
 
 	@Override
 	public void updateOnlineStatus(User user) throws UserDaoException, IllegalArgumentException {
-		if (user.getId() == null)
-			throw new IllegalArgumentException("user id is null");
 		try {
 			Connection connection = source.getConnection();
 			runner.update(connection, SQL_UPDATE_ONLINE_STATUS, user.getIsOnline(), user.getLastSeen(), user.getId());
 		} catch (SQLException e) {
 			e.printStackTrace();
-			throw new UserDaoException(e);
+			throw new UserDaoException(e.getMessage());
 		}
 	}
 
 	@Override
 	public void delete(User user) throws UserDaoException, IllegalArgumentException {
-		if (user.getId() == null)
-			throw new IllegalArgumentException("user id is null");
 		try {
 			runner.update(SQL_DELETE_AUTH, user.getId());
 			runner.update(SQL_DELETE_USER, user.getId());
 			runner.update(SQL_DELETE_USER_PHOTOS, user.getId());
 		} catch (SQLException e) {
 			e.printStackTrace();
-			throw new UserDaoException(e);
+			throw new UserDaoException(e.getMessage());
 		}
 	}
 
 	@Override
 	public boolean existEmail(String email) throws UserDaoException, IllegalArgumentException {
 		if (email == null || email == "")
-			throw new IllegalArgumentException("empty email");
+			throw new BadRequestDataException("empty email");
 		try {
 			ResultSetHandler<Long> tempHandler = new ResultSetHandler<>() {
 				public Long handle(ResultSet rs) throws SQLException {
@@ -241,14 +230,14 @@ public class DatabaseUserDaoImpl implements UserDAO {
 			return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
-			throw new UserDaoException(e);
+			throw new UserDaoException(e.getMessage());
 		}
 	}
 
 	@Override
 	public boolean existLogin(String login) throws UserDaoException, IllegalArgumentException {
 		if (login == null || login == "")
-			throw new IllegalArgumentException("empty login");
+			throw new BadRequestDataException("empty login");
 		try {
 			ResultSetHandler<Long> tempHandler = new ResultSetHandler<>() {
 				public Long handle(ResultSet rs) throws SQLException {
@@ -278,19 +267,18 @@ public class DatabaseUserDaoImpl implements UserDAO {
 			Connection connection = source.getConnection();
 			ResultSetHandler<Collection<User>> userHandler = new UserHandler();
 			Collection<User> users = runner.query(connection, SQL_GET_ALL_USERS, userHandler);
-			if (users.size() == 0)
-				throw new IllegalArgumentException(DaoIllegalException.NO_USERS.toString());
 			for (User user : users) {
 				try {
-					user.setPhoto(getPhoto(user.getId()));
-				} catch (IllegalArgumentException e) {
-					e.printStackTrace();
+					UserPhoto photo = getPhoto(user.getId());
+					user.setPhoto(photo);
+				} catch (ResourceNotFoundException e) {
+					System.out.println(e.getMessage());
 				}
 			}
 			return users;
 		} catch (SQLException e) {
 			e.printStackTrace();
-			throw new UserDaoException(e);
+			throw new UserDaoException(e.getMessage());
 		}
 	}
 
@@ -308,10 +296,10 @@ public class DatabaseUserDaoImpl implements UserDAO {
 				statement.close();
 				return auth;
 			}
-			throw new UserNotFoundException("Authentication is not found by userId = " + userId);
+			throw new ResourceNotFoundException("this user [" + userId + "] doesn't exist");
 		} catch (SQLException e) {
 			e.printStackTrace();
-			throw new UserDaoException(e);
+			throw new UserDaoException(e.getMessage());
 		}
 	}
 

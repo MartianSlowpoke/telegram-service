@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @SuppressWarnings("serial")
 @ResponseStatus(code = HttpStatus.BAD_REQUEST)
-public class NotValidAuthDataException extends IllegalArgumentException {
+public class NotValidAuthDataException extends Exception {
 
 	public NotValidAuthDataException(String message) {
 		super(message);

@@ -43,10 +43,15 @@ public class AuthenticationFilter implements Filter {
 
 		if (session == null) {
 			resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-		} else {
-			chain.doFilter(request, response);
+			return;
 		}
 
+		if (session.getAttribute("user") == null) {
+			resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			return;
+		}
+
+		chain.doFilter(request, response);
 	}
 
 	@Override

@@ -8,12 +8,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import webservices.telegram.dao.user.UserDAO;
 import webservices.telegram.exception.UserDaoException;
@@ -49,6 +53,18 @@ public class AuthenticationController {
 			session.invalidate();
 		}
 		eraseCookie(request, response);
+	}
+
+	@ExceptionHandler
+	@RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<Exception> handle(Exception e) {
+		if (e.getClass().isAnnotationPresent(ResponseStatus.class)) {
+			HttpStatus statusCode = e.getClass().getAnnotation(ResponseStatus.class).code();
+			ResponseEntity<Exception> entity = new ResponseEntity<Exception>(e, statusCode);
+			return entity;
+		}
+		return new ResponseEntity<Exception>(e, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	private Authentication extract(String authHeader) {

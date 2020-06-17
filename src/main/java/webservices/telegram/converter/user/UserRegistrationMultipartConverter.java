@@ -1,11 +1,10 @@
 package webservices.telegram.converter.user;
 
 import java.io.IOException;
-import java.sql.SQLException;
 
 import javax.sql.rowset.serial.SerialBlob;
 
-import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.FileItem;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
@@ -15,7 +14,7 @@ import org.springframework.http.converter.HttpMessageNotWritableException;
 
 import webservices.telegram.converter.MultipartFormParser;
 import webservices.telegram.dto.user.UserRegistrationRequest;
-import webservices.telegram.exception.user.NotValidAuthDataException;
+import webservices.telegram.exception.BadRequestDataException;
 import webservices.telegram.model.user.Authentication;
 import webservices.telegram.model.user.AuthenticationBuilder;
 import webservices.telegram.model.user.User;
@@ -44,16 +43,19 @@ public class UserRegistrationMultipartConverter extends AbstractHttpMessageConve
 					.lastName(form.get("lastName")).description(form.get("description")).build();
 			UserPhotoBuilder photoBuilder = new UserPhotoBuilder();
 			photoBuilder.fileName(form.getFileName("photo"));
-			if (form.getFileItem("photo").get() != null) {
-				photoBuilder.fileData(new SerialBlob(form.getFileItem("photo").get()));
-				user.setPhoto(photoBuilder.build());
+			FileItem photo = form.getFileItem("photo");
+			if (photo != null) {
+				if (form.getFileItem("photo").get() != null) {
+					photoBuilder.fileData(new SerialBlob(form.getFileItem("photo").get()));
+					user.setPhoto(photoBuilder.build());
+				}
 			}
 			AuthenticationBuilder authBuild = new AuthenticationBuilder();
 			Authentication auth = authBuild.email(form.get("email")).password(form.get("password")).build();
 			return new UserRegistrationRequest(user, auth);
-		} catch (FileUploadException | SQLException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
-			throw new NotValidAuthDataException("bad photo file");
+			throw new BadRequestDataException(e.getMessage());
 		}
 	}
 

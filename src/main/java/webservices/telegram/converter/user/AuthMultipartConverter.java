@@ -2,7 +2,6 @@ package webservices.telegram.converter.user;
 
 import java.io.IOException;
 
-import org.apache.commons.fileupload.FileUploadException;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
@@ -11,7 +10,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 
 import webservices.telegram.converter.MultipartFormParser;
-import webservices.telegram.exception.user.NotValidAuthDataException;
+import webservices.telegram.exception.BadRequestDataException;
 import webservices.telegram.model.user.Authentication;
 import webservices.telegram.model.user.AuthenticationBuilder;
 
@@ -34,9 +33,9 @@ public class AuthMultipartConverter extends AbstractHttpMessageConverter<Authent
 			form.parse(inputMessage);
 			AuthenticationBuilder auth = new AuthenticationBuilder();
 			return auth.email(form.get("email")).password(form.get("password")).build();
-		} catch (FileUploadException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
-			throw new NotValidAuthDataException("bad photo file");
+			throw new BadRequestDataException(e.getMessage());
 		}
 
 	}

@@ -24,11 +24,15 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
 			<bean scope="singleton"
 				class="webservices.telegram.converter.user.UserRegistrationMultipartConverter" />
 			<bean scope="singleton"
-				class="webservices.telegram.converter.user.MultiPartUserConverter" />
-			<bean scope="singleton"
 				class="webservices.telegram.converter.user.AuthMultipartConverter" />
 			<bean scope="singleton"
 				class="webservices.telegram.converter.user.UserListJsonConverter" />
+			<bean
+				class="webservices.telegram.converter.chat.ChatMultipartConverter" />
+			<bean
+				class="webservices.telegram.converter.chat.ChatJSONConverter" />
+			<bean
+				class="webservices.telegram.converter.JSONGlobalExceptionConverter" />
 		</mvc:message-converters>
 	</mvc:annotation-driven>
 
@@ -42,7 +46,37 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
 		<constructor-arg ref="mysql-user-dao" />
 	</bean>
 
+	<bean id="chat-controller"
+		class="webservices.telegram.controller.ChatController">
+		<constructor-arg name="service" ref="chat-service" />
+	</bean>
+
+	<!-- SERVICE -->
+
+	<bean id="chat-service"
+		class="webservices.telegram.service.chat.ChatServiceImpl">
+		<constructor-arg name="chatDAO" ref="chat-dao" />
+	</bean>
+
+	<!-- DAO -->
 	<bean id="mysql-user-dao"
-		class="webservices.telegram.dao.user.DatabaseUserDaoImpl" />
+		class="webservices.telegram.dao.user.DatabaseUserDaoImpl">
+		<constructor-arg name="source" ref="mysql-data-source" />
+	</bean>
+
+	<bean id="chat-dao"
+		class="webservices.telegram.dao.chat.ChatDAOImpl">
+		<constructor-arg name="userDAO" ref="mysql-user-dao" />
+		<constructor-arg name="source" ref="mysql-data-source" />
+	</bean>
+
+	<bean id="mysql-data-source"
+		class="com.mysql.cj.jdbc.MysqlDataSource">
+		<property name="user" value="root" />
+		<property name="password" value="1111" />
+		<property name="databaseName" value="chat" />
+		<property name="url"
+			value="jdbc:mysql://localhost:3306/chat?serverTimezone=UTC" />
+	</bean>
 
 </beans>

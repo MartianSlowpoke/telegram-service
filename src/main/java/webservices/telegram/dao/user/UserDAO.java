@@ -3,6 +3,7 @@ package webservices.telegram.dao.user;
 import java.util.Collection;
 
 import webservices.telegram.exception.UserDaoException;
+import webservices.telegram.exception.user.NotValidAuthDataException;
 import webservices.telegram.exception.user.UserNotFoundException;
 import webservices.telegram.model.user.Authentication;
 import webservices.telegram.model.user.User;
@@ -10,7 +11,7 @@ import webservices.telegram.model.user.UserPhoto;
 
 public interface UserDAO {
 
-	public void add(User user, Authentication authentication) throws UserDaoException, IllegalArgumentException;
+	public void add(User user, Authentication authentication) throws UserDaoException, NotValidAuthDataException;
 
 	public User logIn(Authentication authentication) throws UserDaoException, IllegalArgumentException;
 

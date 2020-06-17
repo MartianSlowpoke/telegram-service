@@ -6,7 +6,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +21,7 @@ import webservices.telegram.dao.user.UserDAO;
 import webservices.telegram.dto.user.UserListResponse;
 import webservices.telegram.dto.user.UserRegistrationRequest;
 import webservices.telegram.exception.UserDaoException;
+import webservices.telegram.exception.user.NotValidAuthDataException;
 import webservices.telegram.model.user.Authentication;
 import webservices.telegram.model.user.User;
 import webservices.telegram.model.user.UserPhoto;
@@ -74,11 +77,23 @@ public class UserController {
 	@ResponseBody
 	@ResponseStatus(code = HttpStatus.CREATED)
 	public User registration(HttpServletRequest request, @RequestBody UserRegistrationRequest user)
-			throws IllegalArgumentException, UserDaoException {
+			throws  UserDaoException, NotValidAuthDataException {
 		user.getUser().setCreatedAt(Instant.now());
 		userDAO.add(user.getUser(), user.getAuth());
 		request.getSession(true).setAttribute("user", user.getUser());
 		return user.getUser();
+	}
+
+	@ExceptionHandler
+	@RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<Exception> handle(Exception e) {
+		if (e.getClass().isAnnotationPresent(ResponseStatus.class)) {
+			HttpStatus statusCode = e.getClass().getAnnotation(ResponseStatus.class).code();
+			ResponseEntity<Exception> entity = new ResponseEntity<Exception>(e, statusCode);
+			return entity;
+		}
+		return new ResponseEntity<Exception>(e, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	@RequestMapping(method = RequestMethod.PUT, value = "me", consumes = {

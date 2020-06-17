@@ -49,6 +49,7 @@ public class UserPhotoConverter extends AbstractHttpMessageConverter<UserPhoto> 
 			IOUtils.copy(in, response.getBody());
 		} catch (SQLException e) {
 			e.printStackTrace();
+			throw new IOException(e.getMessage());
 		}
 	}
 

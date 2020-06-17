@@ -46,14 +46,9 @@ public class ChatServiceImpl implements ChatService {
 	}
 
 	@Override
-	public Collection<Chat> getChats(Long userId) throws ChatServiceException {
-		try {
-			Collection<Chat> chats = chatDAO.getChats(userId);
-			return chats;
-		} catch (ChatDAOException e) {
-			e.printStackTrace();
-			throw new ChatServiceException(500, e.getMessage());
-		}
+	public Collection<Chat> getChats(Long userId) throws ChatDAOException {
+		Collection<Chat> chats = chatDAO.getChats(userId);
+		return chats;
 	}
 
 	@Override
@@ -84,8 +79,12 @@ public class ChatServiceImpl implements ChatService {
 	}
 
 	@Override
-	public void deleteChat(Long chatId) throws ChatServiceException {
-
+	public void deleteChat(Long chatId) throws ChatDAOException {
+		Chat chat = chatDAO.getChat(chatId);
+		ChatEvent event = new ChatEvent("DELETED_CHAT", chat, Instant.now(),
+				chatDAO.getParticipiants(chat.getChatId()));
+		chatDAO.deleteChat(chatId);
+		notify(event);
 	}
 
 	@Override

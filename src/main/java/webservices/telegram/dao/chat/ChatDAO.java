@@ -24,4 +24,5 @@ public interface ChatDAO {
 
 	public Collection<User> getParticipiants(Long chatId) throws ChatDAOException;
 
+	public void deleteChat(Long chatId) throws ChatDAOException;
 }

@@ -33,6 +33,8 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
 				class="webservices.telegram.converter.chat.ChatJSONConverter" />
 			<bean
 				class="webservices.telegram.converter.JSONGlobalExceptionConverter" />
+			<bean
+				class="webservices.telegram.converter.chat.ChatListJSONConverter" />
 		</mvc:message-converters>
 	</mvc:annotation-driven>
 

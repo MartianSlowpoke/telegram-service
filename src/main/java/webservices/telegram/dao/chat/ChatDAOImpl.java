@@ -16,6 +16,7 @@ import java.util.Map;
 import com.mysql.cj.jdbc.MysqlDataSource;
 
 import webservices.telegram.dao.user.UserDAO;
+import webservices.telegram.exception.ResourceNotFoundException;
 import webservices.telegram.exception.UserDaoException;
 import webservices.telegram.exception.chat.ChatDAOException;
 import webservices.telegram.exception.chat.ChatTypeUnsupportedException;
@@ -37,6 +38,11 @@ public class ChatDAOImpl implements ChatDAO {
 	protected final String SQL_GET_CHAT_MESSAGES = "SELECT message_id FROM message WHERE fk_chat = ?;";
 	protected final String SQL_GET_MESSAGE_BY_ID = "SELECT message_id,fk_chat,fk_sender,content,fkFile,created_at FROM message WHERE message_id = ?";
 	protected final String SQL_GET_MESSAGE_FILE = "SELECT fileName,fileData FROM messageFile WHERE fileId = ?;";
+
+	protected final String SQL_DELETE_PARTICIPANT = "DELETE FROM participiant WHERE fk_user = ? AND fk_chat = ?;";
+	protected final String SQL_DELETE_MESSAGE = "DELETE FROM message WHERE message_id = ?;";
+	protected final String SQL_DELETE_MESSAGE_FILE = "DELETE FROM messageFile WHERE fileId = ?;";
+	protected final String SQL_DELETE_CHAT = "DELETE FROM chat WHERE chat_id = ?;";
 
 	private MysqlDataSource source;
 	private UserDAO userDAO;
@@ -103,7 +109,11 @@ public class ChatDAOImpl implements ChatDAO {
 			setParams(statement, participiantId);
 			ResultSet result = statement.executeQuery();
 			while (result.next()) {
-				chats.add(getChat(result.getLong("fk_chat")));
+				try {
+					chats.add(getChat(result.getLong("fk_chat")));
+				} catch (ResourceNotFoundException ex) {
+					System.out.println(ex.getMessage());
+				}
 			}
 			return chats;
 		} catch (SQLException e) {
@@ -153,10 +163,11 @@ public class ChatDAOImpl implements ChatDAO {
 				}
 				return new Chat(chatId, type, null, createdAt, getParticipiants(chatId));
 			}
+			throw new ResourceNotFoundException("chat with [" + chatId + "] not found");
 		} catch (SQLException e) {
 			e.printStackTrace();
+			throw new ChatDAOException(e.getMessage());
 		}
-		throw new ChatDAOException("unknown reason,bro");
 	}
 
 	@Override
@@ -218,6 +229,46 @@ public class ChatDAOImpl implements ChatDAO {
 	protected void setParams(PreparedStatement statement, Object... values) throws SQLException {
 		for (int i = 0; i < values.length; i++) {
 			statement.setObject(i + 1, values[i]);
+		}
+	}
+
+	@Override
+	public void deleteChat(Long chatId) throws ChatDAOException {
+		try {
+			Chat chat = getChat(chatId);
+			Collection<User> users = getParticipiants(chat.getChatId());
+			for (User user : users) {
+				deleteParticipant(user.getId(), chatId);
+			}
+			Collection<Message> messages = getChatMessages(chat.getChatId());
+			for (Message msg : messages) {
+				deleteMessage(msg.getMessageId());
+			}
+			try (PreparedStatement statement = getPreparedStatement(SQL_DELETE_CHAT, Statement.NO_GENERATED_KEYS)) {
+				setParams(statement, chatId);
+				statement.execute();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new ChatDAOException(e.getMessage());
+		}
+	}
+
+	private void deleteMessage(Long messageId) throws SQLException {
+		try (PreparedStatement statement = getPreparedStatement(SQL_DELETE_MESSAGE_FILE, Statement.NO_GENERATED_KEYS)) {
+			setParams(statement, messageId);
+			statement.execute();
+		}
+		try (PreparedStatement statement = getPreparedStatement(SQL_DELETE_MESSAGE, Statement.NO_GENERATED_KEYS)) {
+			setParams(statement, messageId);
+			statement.execute();
+		}
+	}
+
+	private void deleteParticipant(Long userId, Long fromChatId) throws SQLException {
+		try (PreparedStatement statement = getPreparedStatement(SQL_DELETE_PARTICIPANT, Statement.NO_GENERATED_KEYS)) {
+			setParams(statement, userId, fromChatId);
+			statement.execute();
 		}
 	}
 

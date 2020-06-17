@@ -13,7 +13,7 @@ public interface ChatService {
 
 	public void add(Chat chat) throws ChatDAOException, ChatTypeUnsupportedException;
 
-	public Collection<Chat> getChats(Long userId) throws ChatServiceException;
+	public Collection<Chat> getChats(Long userId) throws ChatDAOException;
 
 	public Collection<Message> getMessages(Long chatId) throws ChatServiceException;
 
@@ -21,7 +21,7 @@ public interface ChatService {
 
 	public void deleteMessage(Long messageId) throws ChatServiceException;
 
-	public void deleteChat(Long chatId) throws ChatServiceException;
+	public void deleteChat(Long chatId) throws ChatDAOException;
 
 	public void setChatEventListener(ChatEventListener listener);
 

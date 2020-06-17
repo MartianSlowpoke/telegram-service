@@ -52,6 +52,7 @@ webservices/telegram/exception/user/NoAuthorizedException.class
 webservices/telegram/converter/user/AuthConverter.class
 webservices/telegram/service/chat/ChatServiceException.class
 webservices/telegram/converter/chat/ChatJSONConverter.class
+webservices/telegram/converter/chat/ChatListJSONConverter.class
 webservices/telegram/exception/DaoIllegalException.class
 webservices/telegram/converter/chat/ChatMultipartConverter.class
 webservices/telegram/dao/user/UserDAO.class
@@ -63,6 +64,7 @@ webservices/telegram/exception/user/NotValidAuthDataException.class
 webservices/telegram/exception/chat/InputChatNotValidException.class
 webservices/telegram/service/chat/MessageEventListener.class
 webservices/telegram/controller/ChatController.class
+webservices/telegram/dto/chat/ChatListResponse.class
 webservices/telegram/model/user/UserBuilder.class
 webservices/telegram/model/user/Authentication.class
 webservices/telegram/dao/user/AuthIdHandler.class

@@ -46,7 +46,7 @@ public class PrivateChatCreationHandler implements ChatCreationHandler {
 			connection.commit();
 		} catch (SQLException e) {
 			e.printStackTrace();
-			throw new ChatDAOException(e.getMessage());
+			throw new ChatDAOException("the chat can't be added");
 		}
 	}
 

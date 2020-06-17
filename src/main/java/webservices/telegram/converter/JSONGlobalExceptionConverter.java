@@ -13,12 +13,14 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import webservices.telegram.exception.BadRequestDataException;
 import webservices.telegram.exception.ResourceNotFoundException;
+import webservices.telegram.exception.chat.ChatDAOException;
+import webservices.telegram.exception.chat.ChatTypeUnsupportedException;
 import webservices.telegram.exception.user.NotValidAuthDataException;
 
 public class JSONGlobalExceptionConverter extends AbstractHttpMessageConverter<Exception> {
 
 	private Class<?>[] classes = new Class<?>[] { NotValidAuthDataException.class, BadRequestDataException.class,
-			ResourceNotFoundException.class };
+			ResourceNotFoundException.class, ChatDAOException.class, ChatTypeUnsupportedException.class };
 
 	public JSONGlobalExceptionConverter() {
 		super(MediaType.APPLICATION_JSON);

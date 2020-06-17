@@ -35,6 +35,7 @@ public class ChatJSONConverter extends AbstractHttpMessageConverter<Chat> {
 			throws IOException, HttpMessageNotWritableException {
 		JSONObject json = ChatJsonMapper.chatToJson(chat);
 		outputMessage.getBody().write(json.toJSONString().getBytes());
+	
 	}
 
 }

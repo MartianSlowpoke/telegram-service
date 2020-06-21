@@ -179,6 +179,9 @@ public class DatabaseUserDaoImpl implements UserDAO {
 			runner.update(connection, SQL_UPDATE_USER, user.getLogin(), user.getFirstName(), user.getLastName(),
 					user.getDescription(), user.getId());
 			UserPhoto photo = user.getPhoto();
+			if (photo == null) {
+				runner.update(connection, SQL_UPDATE_USER_PHOTO, null, null, user.getId());
+			}
 			if (photo != null) {
 				runner.update(connection, SQL_UPDATE_USER_PHOTO, photo.getFileName(), photo.getFileData(),
 						user.getId());

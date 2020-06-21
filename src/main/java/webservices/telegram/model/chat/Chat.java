@@ -11,13 +11,16 @@ public class Chat {
 
 	private Long chatId;
 	private String type;
+	private String description;
+	private User creator;
 	private Message lastMessage;
 	private Collection<User> participiants;
 	private Instant createdAt;
+	private ChatPhoto photo;
 	
 	public Chat() {
 	}
-	
+
 	public Chat(String type, Collection<String> participants) {
 		this.type = type;
 		this.participiants = new ArrayList<>();

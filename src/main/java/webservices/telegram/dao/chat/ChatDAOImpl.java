@@ -30,7 +30,9 @@ public class ChatDAOImpl implements ChatDAO {
 	protected final static String SQL_INSERT_PRIVATE_CHAT = "INSERT INTO chat (chat_type,created_at) VALUES (?,?);";
 	protected final static String SQL_INSERT_PARTICIPIANT = "INSERT INTO participiant (fk_user, fk_chat, created_at) VALUES (?,?,?);";
 	protected final String SQL_INSERT_MESSAGE = "INSERT INTO message (fk_chat, fk_sender,content,created_at, fkFile) VALUES (?,?,?,?,?);";
-	protected final String SQL_INSERT_MESSAGE_FILE = "INSERT INTO messageFile (fileName,fileData) VALUES (?,?);";;
+	protected final String SQL_INSERT_MESSAGE_FILE = "INSERT INTO messageFile (fileName,fileData) VALUES (?,?);";
+	protected final String SQL_INSERT_PARTICIPANT = "INSERT INTO participiant (fk_user, fk_chat, created_at) VALUES (?,?,?);";
+	protected final String SQL_REMOVE_PARTICIPANT = "DELETE FROM participiant WHERE fk_user = ? AND fk_chat = ?;";
 
 	protected final String SQL_GET_PARTICIPIANTS = "SELECT fk_user,fk_chat FROM participiant WHERE fk_chat = ?;";
 	protected final String SQL_GET_CHATS_ID_OF_PARTICIPIANT = "SELECT fk_chat FROM participiant WHERE fk_user = ?;";
@@ -269,6 +271,33 @@ public class ChatDAOImpl implements ChatDAO {
 		try (PreparedStatement statement = getPreparedStatement(SQL_DELETE_PARTICIPANT, Statement.NO_GENERATED_KEYS)) {
 			setParams(statement, userId, fromChatId);
 			statement.execute();
+		}
+	}
+
+	@Override
+	public void addParticipant(Chat chat, User user) throws ChatDAOException {
+//		String chatType = chat.getType();
+//		if (!chatType.equals("group") || !chatType.equals("channel")) {
+//			// throw
+//			throw new ChatDAOException("It is not allowed to add new participants into a private chat.");
+//		}
+		try (PreparedStatement statement = getPreparedStatement(SQL_INSERT_PARTICIPIANT, Statement.NO_GENERATED_KEYS)) {
+			setParams(statement, user.getId(), chat.getChatId(), Timestamp.from(Instant.now()));
+			statement.execute();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new ChatDAOException(e.getMessage());
+		}
+	}
+
+	@Override
+	public void removeParticipant(Chat chat, User user) throws ChatDAOException {
+		try (PreparedStatement statement = getPreparedStatement(SQL_DELETE_PARTICIPANT, Statement.NO_GENERATED_KEYS)) {
+			setParams(statement, user.getId(), chat.getChatId());
+			statement.execute();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new ChatDAOException(e.getMessage());
 		}
 	}
 

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.SessionAttribute;
 
 import webservices.telegram.dto.chat.ChatListResponse;
+import webservices.telegram.dto.chat.ParticipantRequest;
 import webservices.telegram.exception.chat.ChatDAOException;
 import webservices.telegram.exception.chat.ChatTypeUnsupportedException;
 import webservices.telegram.model.chat.Chat;
@@ -42,6 +43,28 @@ public class ChatController {
 		return chat;
 	}
 
+	@RequestMapping(method = RequestMethod.GET, value = {
+			"{id}" }, consumes = MediaType.ALL_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public Chat getChatById(@PathVariable("id") Long chatId) throws ChatDAOException {
+		return service.getChat(chatId);
+	}
+
+	@RequestMapping(method = RequestMethod.POST, value = {
+			"{chat-id}/participants" }, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseStatus(code = HttpStatus.CREATED)
+	public void addParticipant(@PathVariable("chat-id") Long chat_id, @RequestBody ParticipantRequest req)
+			throws ChatDAOException {
+		service.addParticipant(chat_id, req.getUserId());
+	}
+
+	@RequestMapping(method = RequestMethod.DELETE, value = "{chat-id}/participants/{user-id}", consumes = MediaType.ALL_VALUE, produces = MediaType.ALL_VALUE)
+	@ResponseStatus(code = HttpStatus.OK)
+	public void removeParticipant(@PathVariable("chat-id") Long chatId, @PathVariable("user-id") Long userId)
+			throws ChatDAOException {
+		service.removeParticipant(chatId, userId);
+	}
+
 	@RequestMapping(method = RequestMethod.GET, value = { "", "/" }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ChatListResponse getChats(@NonNull @SessionAttribute("user") User user) throws ChatDAOException {
@@ -52,7 +75,6 @@ public class ChatController {
 	@RequestMapping(method = RequestMethod.DELETE, value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseStatus(code = HttpStatus.OK)
 	public void deleteChat(@PathVariable("id") Long chatId) throws ChatDAOException {
-		System.out.println("here shit");
 		service.deleteChat(chatId);
 	}
 

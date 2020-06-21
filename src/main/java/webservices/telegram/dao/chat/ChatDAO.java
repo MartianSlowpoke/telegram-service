@@ -14,6 +14,10 @@ public interface ChatDAO {
 
 	public void addMessage(Message message) throws ChatDAOException;
 
+	public void addParticipant(Chat chat, User user) throws ChatDAOException;
+
+	public void removeParticipant(Chat chat, User user) throws ChatDAOException;
+
 	public Chat getChat(Long chatId) throws ChatDAOException;
 
 	public Message getMessage(Long messageId) throws ChatDAOException;
@@ -25,4 +29,5 @@ public interface ChatDAO {
 	public Collection<User> getParticipiants(Long chatId) throws ChatDAOException;
 
 	public void deleteChat(Long chatId) throws ChatDAOException;
+
 }

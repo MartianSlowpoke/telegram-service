@@ -3,10 +3,11 @@ webservices/telegram/dao/user/DatabaseUserDaoImpl$1.class
 webservices/telegram/exception/ResourceNotFoundException.class
 webservices/telegram/exception/DaoIllegalException$1.class
 webservices/telegram/converter/MessageJsonMapper.class
-webservices/telegram/model/chat/Message$Property.class
 webservices/telegram/dao/user/DatabaseUserDaoImpl.class
 webservices/telegram/converter/user/AuthMultipartConverter.class
+webservices/telegram/service/chat/ParticipantEvent.class
 webservices/telegram/exception/DaoIllegalException$4.class
+webservices/telegram/converter/chat/JSONParticipantConverter.class
 webservices/telegram/model/chat/Chat.class
 webservices/telegram/converter/user/UserRegistrationMultipartConverter.class
 webservices/telegram/exception/UserDaoException.class
@@ -32,9 +33,9 @@ webservices/telegram/dao/user/DatabaseUserDaoImpl$2.class
 webservices/telegram/converter/ChatJsonMapper.class
 webservices/telegram/exception/user/UserDAOException.class
 webservices/telegram/model/chat/MessageFile.class
-webservices/telegram/model/chat/Message$1.class
 webservices/telegram/exception/user/NotValidAuthenticationRequestDataException.class
 webservices/telegram/service/chat/MessageEvent.class
+webservices/telegram/model/chat/ChatPhoto.class
 webservices/telegram/dao/chat/ChatDAO.class
 webservices/telegram/exception/ExceptionMapper.class
 webservices/telegram/dao/user/UserHandler.class
@@ -53,6 +54,7 @@ webservices/telegram/converter/user/AuthConverter.class
 webservices/telegram/service/chat/ChatServiceException.class
 webservices/telegram/converter/chat/ChatJSONConverter.class
 webservices/telegram/converter/chat/ChatListJSONConverter.class
+webservices/telegram/dto/chat/ParticipantRequest.class
 webservices/telegram/exception/DaoIllegalException.class
 webservices/telegram/converter/chat/ChatMultipartConverter.class
 webservices/telegram/dao/user/UserDAO.class
@@ -62,6 +64,7 @@ webservices/telegram/converter/user/UserListJsonConverter.class
 webservices/telegram/service/chat/ChatServiceImpl.class
 webservices/telegram/exception/user/NotValidAuthDataException.class
 webservices/telegram/exception/chat/InputChatNotValidException.class
+webservices/telegram/dao/chat/GroupChatCreationHandler.class
 webservices/telegram/service/chat/MessageEventListener.class
 webservices/telegram/controller/ChatController.class
 webservices/telegram/dto/chat/ChatListResponse.class

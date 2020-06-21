@@ -77,7 +77,7 @@ public class UserController {
 	@ResponseBody
 	@ResponseStatus(code = HttpStatus.CREATED)
 	public User registration(HttpServletRequest request, @RequestBody UserRegistrationRequest user)
-			throws  UserDaoException, NotValidAuthDataException {
+			throws UserDaoException, NotValidAuthDataException {
 		user.getUser().setCreatedAt(Instant.now());
 		userDAO.add(user.getUser(), user.getAuth());
 		request.getSession(true).setAttribute("user", user.getUser());
@@ -99,10 +99,11 @@ public class UserController {
 	@RequestMapping(method = RequestMethod.PUT, value = "me", consumes = {
 			MediaType.MULTIPART_FORM_DATA_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public User updateInfo(@SessionAttribute(name = "user", required = true) User initiator, @RequestBody User updated)
-			throws IllegalArgumentException, UserDaoException {
-		updated.setId(initiator.getId());
-		userDAO.update(updated);
+	public User updateInfo(@SessionAttribute(name = "user", required = true) User initiator,
+			@RequestBody UserRegistrationRequest updated) throws IllegalArgumentException, UserDaoException {
+		User updatedUser = updated.getUser();
+		updatedUser.setId(initiator.getId());
+		userDAO.update(updatedUser);
 		return userDAO.get(initiator.getId());
 	}
 

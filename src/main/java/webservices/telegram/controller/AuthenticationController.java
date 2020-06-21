@@ -34,7 +34,9 @@ public class AuthenticationController {
 	public AuthenticationController(UserDAO userDAO) {
 		this.userDAO = userDAO;
 	}
-
+	
+	// Basic bXljcmF6eWVtYWlsQHVrci5uZXQ6MDUwOA==
+	
 	@RequestMapping(method = RequestMethod.GET, value = "login", consumes = MediaType.ALL_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public User logIn(@RequestHeader(value = "Authorization", required = true) String authHeader,

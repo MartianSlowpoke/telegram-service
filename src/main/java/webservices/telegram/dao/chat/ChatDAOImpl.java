@@ -20,7 +20,9 @@ import webservices.telegram.exception.ResourceNotFoundException;
 import webservices.telegram.exception.UserDaoException;
 import webservices.telegram.exception.chat.ChatDAOException;
 import webservices.telegram.exception.chat.ChatTypeUnsupportedException;
+import webservices.telegram.exception.user.UserNotFoundException;
 import webservices.telegram.model.chat.Chat;
+import webservices.telegram.model.chat.ChatPhoto;
 import webservices.telegram.model.chat.Message;
 import webservices.telegram.model.chat.MessageFile;
 import webservices.telegram.model.user.User;
@@ -29,6 +31,7 @@ public class ChatDAOImpl implements ChatDAO {
 
 	protected final static String SQL_INSERT_PRIVATE_CHAT = "INSERT INTO chat (chat_type,created_at) VALUES (?,?);";
 	protected final static String SQL_INSERT_PARTICIPIANT = "INSERT INTO participiant (fk_user, fk_chat, created_at) VALUES (?,?,?);";
+	protected final String SQL_INSERT_GROUP_CHAT = "INSERT INTO chat (chat_type, description, fk_owner, fk_chat_photo) VALUES (?,?,?,?);";
 	protected final String SQL_INSERT_MESSAGE = "INSERT INTO message (fk_chat, fk_sender,content,created_at, fkFile) VALUES (?,?,?,?,?);";
 	protected final String SQL_INSERT_MESSAGE_FILE = "INSERT INTO messageFile (fileName,fileData) VALUES (?,?);";
 	protected final String SQL_INSERT_PARTICIPANT = "INSERT INTO participiant (fk_user, fk_chat, created_at) VALUES (?,?,?);";
@@ -36,7 +39,7 @@ public class ChatDAOImpl implements ChatDAO {
 
 	protected final String SQL_GET_PARTICIPIANTS = "SELECT fk_user,fk_chat FROM participiant WHERE fk_chat = ?;";
 	protected final String SQL_GET_CHATS_ID_OF_PARTICIPIANT = "SELECT fk_chat FROM participiant WHERE fk_user = ?;";
-	protected final String SQL_GET_CHAT_BY_ID = "SELECT chat_id, chat_type,fk_last_message,created_at FROM chat WHERE chat_id = ?;";
+	protected final String SQL_GET_CHAT_BY_ID = "SELECT chat_id, chat_type, description, fk_owner,fk_last_message,created_at,fk_chat_photo  FROM chat WHERE chat_id = ?;";
 	protected final String SQL_GET_CHAT_MESSAGES = "SELECT message_id FROM message WHERE fk_chat = ?;";
 	protected final String SQL_GET_MESSAGE_BY_ID = "SELECT message_id,fk_chat,fk_sender,content,fkFile,created_at FROM message WHERE message_id = ?";
 	protected final String SQL_GET_MESSAGE_FILE = "SELECT fileName,fileData FROM messageFile WHERE fileId = ?;";
@@ -46,7 +49,7 @@ public class ChatDAOImpl implements ChatDAO {
 	protected final String SQL_DELETE_MESSAGE_FILE = "DELETE FROM messageFile WHERE fileId = ?;";
 	protected final String SQL_DELETE_CHAT = "DELETE FROM chat WHERE chat_id = ?;";
 
-	private MysqlDataSource source;
+	protected MysqlDataSource source;
 	private UserDAO userDAO;
 	private Map<String, ChatCreationHandler> handlers;
 
@@ -55,6 +58,7 @@ public class ChatDAOImpl implements ChatDAO {
 		this.source = source;
 		handlers = new HashMap<>();
 		handlers.put("private", new PrivateChatCreationHandler(source, this));
+		handlers.put("group", new GroupChatCreationHandler(this));
 	}
 
 	@Override
@@ -157,16 +161,31 @@ public class ChatDAOImpl implements ChatDAO {
 			ResultSet result = statement.executeQuery();
 			if (result.next()) {
 				String type = result.getString("chat_type");
-				Instant createdAt = result.getTimestamp("created_at").toInstant();
-				if (result.getLong("fk_last_message") != 0) {
-					Message last = getMessage(result.getLong("fk_last_message"));
-					Chat chat = new Chat(chatId, type, last, createdAt, getParticipiants(chatId));
-					return chat;
+				String description = result.getString("description");
+				User creator = userDAO.get(result.getLong("fk_owner"));
+				Long fkPhotoId = result.getLong("fk_chat_photo");
+				ChatPhoto photo = null;
+				if (fkPhotoId != 0) {
+					photo = getChatPhoto(fkPhotoId);
 				}
-				return new Chat(chatId, type, null, createdAt, getParticipiants(chatId));
+				Instant createdAt = result.getTimestamp("created_at").toInstant();
+				Message lastMessage = null;
+				if (result.getLong("fk_last_message") != 0) {
+					lastMessage = getMessage(result.getLong("fk_last_message"));
+				}
+				Chat chat = new Chat();
+				chat.setChatId(chatId);
+				chat.setType(type);
+				chat.setDescription(description);
+				chat.setCreator(creator);
+				chat.setPhoto(photo);
+				chat.setCreatedAt(createdAt);
+				chat.setLastMessage(lastMessage);
+				chat.setParticipiants(getParticipiants(chatId));
+				return chat;
 			}
 			throw new ResourceNotFoundException("chat with [" + chatId + "] not found");
-		} catch (SQLException e) {
+		} catch (SQLException | UserNotFoundException | UserDaoException e) {
 			e.printStackTrace();
 			throw new ChatDAOException(e.getMessage());
 		}
@@ -222,6 +241,22 @@ public class ChatDAOImpl implements ChatDAO {
 			String fileName = result.getString("fileName");
 			Blob fileData = result.getBlob("fileData");
 			return new MessageFile(fileName, fileData);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new ChatDAOException(e.getMessage());
+		}
+	}
+
+	private ChatPhoto getChatPhoto(Long fileId) throws ChatDAOException {
+		try (PreparedStatement statement = getPreparedStatement(SQL_GET_MESSAGE_FILE, Statement.NO_GENERATED_KEYS)) {
+			setParams(statement, fileId);
+			ResultSet result = statement.executeQuery();
+			if (result.next()) {
+				String fileName = result.getString("fileName");
+				Blob fileData = result.getBlob("fileData");
+				return new ChatPhoto(fileName, fileData);
+			}
+			throw new ChatDAOException("empty");
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new ChatDAOException(e.getMessage());

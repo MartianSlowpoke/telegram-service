@@ -15,7 +15,16 @@ public class ChatJsonMapper {
 		JSONObject json = new JSONObject();
 		json.put("id", chat.getChatId());
 		json.put("type", chat.getType());
-		json.put("lastMessage", null);
+		json.put("description", chat.getDescription());
+		json.put("creator", UserJsonMapper.toJSONObject(chat.getCreator()));
+		if (chat.getLastMessage() != null)
+			json.put("lastMessage", MessageJsonMapper.messageToJson(chat.getLastMessage()));
+		else
+			json.put("lastMessage", null);
+		if (chat.hasPhoto())
+			json.put("photo", "http://localhost:8080/telegram/chats/" + chat.getChatId() + "/photo");
+		else
+			json.put("photo", null);
 		json.put("createdAt", chat.getCreatedAt().toString());
 		json.put("participiants", UserJsonMapper.toJSONArray(chat.getParticipiants()));
 		return json;

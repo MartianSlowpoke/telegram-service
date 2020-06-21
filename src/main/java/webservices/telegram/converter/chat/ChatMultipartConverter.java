@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import javax.sql.rowset.serial.SerialBlob;
+
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
@@ -14,6 +16,7 @@ import org.springframework.http.converter.HttpMessageNotWritableException;
 import webservices.telegram.converter.MultipartFormParser;
 import webservices.telegram.exception.BadRequestDataException;
 import webservices.telegram.model.chat.Chat;
+import webservices.telegram.model.chat.ChatPhoto;
 
 public class ChatMultipartConverter extends AbstractHttpMessageConverter<Chat> {
 
@@ -32,7 +35,15 @@ public class ChatMultipartConverter extends AbstractHttpMessageConverter<Chat> {
 		try {
 			MultipartFormParser form = new MultipartFormParser();
 			form.parse(inputMessage);
-			Chat chat = new Chat(form.get("type"), parse(form.get("participants")));
+			Chat chat = new Chat(parse(form.get("participants")));
+			chat.setType(form.get("type"));
+			chat.setDescription(form.get("description"));
+			if (form.getFileItem("photo") != null) {
+				if (form.getFileItem("photo").getSize() != 0 && form.getFileName("photo") != null) {
+					chat.setPhoto(
+							new ChatPhoto(form.getFileName("photo"), new SerialBlob(form.getFileItem("photo").get())));
+				}
+			}
 			return chat;
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -17,12 +17,11 @@ public class Chat {
 	private Collection<User> participiants;
 	private Instant createdAt;
 	private ChatPhoto photo;
-	
+
 	public Chat() {
 	}
 
-	public Chat(String type, Collection<String> participants) {
-		this.type = type;
+	public Chat(Collection<String> participants) {
 		this.participiants = new ArrayList<>();
 		UserBuilder builder = new UserBuilder();
 		for (String str : participants) {
@@ -82,6 +81,36 @@ public class Chat {
 
 	public void setCreatedAt(Instant createdAt) {
 		this.createdAt = createdAt;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public User getCreator() {
+		return creator;
+	}
+
+	public void setCreator(User creator) {
+		this.creator = creator;
+	}
+
+	public ChatPhoto getPhoto() {
+		return photo;
+	}
+
+	public void setPhoto(ChatPhoto photo) {
+		this.photo = photo;
+	}
+
+	public boolean hasPhoto() {
+		if (photo == null)
+			return false;
+		return true;
 	}
 
 	@Override

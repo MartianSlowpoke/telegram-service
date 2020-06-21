@@ -1,7 +1,5 @@
 package webservices.telegram.converter;
 
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -10,29 +8,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import webservices.telegram.model.user.User;
-import webservices.telegram.model.user.UserBuilder;
 
 public class UserJsonMapper {
-
-	@SuppressWarnings("unchecked")
-	public static void main(String[] args) {
-		User user1 = new UserBuilder().id(23l).login("skoriy").firstName("Serhii").lastName("Skoriy")
-				.createdAt(Instant.now()).description("hello,world").hasPhoto(false).build();
-
-		User user2 = new UserBuilder().id(23l).login("skoriy").firstName("Serhii").lastName("Skoriy")
-				.createdAt(Instant.now()).description("hello,world").hasPhoto(false).build();
-
-		User user3 = new UserBuilder().id(23l).login("skoriy").firstName("Serhii").lastName("Skoriy")
-				.createdAt(Instant.now()).description("hello,world").hasPhoto(false).build();
-
-		Collection<User> users = new ArrayList<>();
-		users.add(user1);
-		users.add(user2);
-		users.add(user3);
-		JSONObject json = new JSONObject();
-		json.put("users", toJSONArray(users));
-		System.out.println(json.toJSONString());
-	}
 
 	public static String toJSON(User user) {
 		Map<String, Object> map = new LinkedHashMap<>();

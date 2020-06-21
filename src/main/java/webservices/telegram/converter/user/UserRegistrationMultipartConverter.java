@@ -45,7 +45,7 @@ public class UserRegistrationMultipartConverter extends AbstractHttpMessageConve
 			photoBuilder.fileName(form.getFileName("photo"));
 			FileItem photo = form.getFileItem("photo");
 			if (photo != null) {
-				if (form.getFileItem("photo").get() != null) {
+				if (form.getFileItem("photo").getSize() != 0 && form.getFileName("photo") != null) {
 					photoBuilder.fileData(new SerialBlob(form.getFileItem("photo").get()));
 					user.setPhoto(photoBuilder.build());
 				}

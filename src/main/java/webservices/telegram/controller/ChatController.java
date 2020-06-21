@@ -18,9 +18,11 @@ import org.springframework.web.bind.annotation.SessionAttribute;
 
 import webservices.telegram.dto.chat.ChatListResponse;
 import webservices.telegram.dto.chat.ParticipantRequest;
+import webservices.telegram.exception.ResourceNotFoundException;
 import webservices.telegram.exception.chat.ChatDAOException;
 import webservices.telegram.exception.chat.ChatTypeUnsupportedException;
 import webservices.telegram.model.chat.Chat;
+import webservices.telegram.model.chat.ChatPhoto;
 import webservices.telegram.model.user.User;
 import webservices.telegram.service.chat.ChatService;
 
@@ -39,6 +41,7 @@ public class ChatController {
 	@ResponseBody
 	public Chat create(@SessionAttribute("user") User user, @RequestBody Chat chat)
 			throws ChatDAOException, ChatTypeUnsupportedException {
+		chat.setCreator(user);
 		service.add(chat);
 		return chat;
 	}
@@ -48,6 +51,17 @@ public class ChatController {
 	@ResponseBody
 	public Chat getChatById(@PathVariable("id") Long chatId) throws ChatDAOException {
 		return service.getChat(chatId);
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value = "{id}/photo", produces = { MediaType.IMAGE_JPEG_VALUE,
+			MediaType.IMAGE_PNG_VALUE })
+	@ResponseBody
+	public ChatPhoto getChatPhoto(@PathVariable("id") Long chatId) throws ChatDAOException {
+		Chat chat = service.getChat(chatId);
+		if (chat.hasPhoto()) {
+			return chat.getPhoto();
+		}
+		throw new ResourceNotFoundException("chat [" + chatId + "] does not have any photo");
 	}
 
 	@RequestMapping(method = RequestMethod.POST, value = {

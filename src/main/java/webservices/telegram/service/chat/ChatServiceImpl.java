@@ -3,8 +3,6 @@ package webservices.telegram.service.chat;
 import java.time.Instant;
 import java.util.Collection;
 
-import javax.servlet.http.HttpServletResponse;
-
 import webservices.telegram.dao.chat.ChatDAO;
 import webservices.telegram.dao.user.UserDAO;
 import webservices.telegram.exception.UserDaoException;
@@ -28,19 +26,13 @@ public class ChatServiceImpl implements ChatService {
 	}
 
 	@Override
-	public void add(Message message) throws ChatServiceException {
-		try {
-			chatDAO.addMessage(message);
-			Chat chat = chatDAO.getChat(message.getChatId());
-			MessageEvent event = new MessageEvent("NEW_MESSAGE", message, chat, Instant.now(),
-					chatDAO.getParticipiants(message.getChatId()));
-			notify(event);
-		} catch (ChatDAOException e) {
-			e.printStackTrace();
-			throw new ChatServiceException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		}
+	public void add(Message message) throws ChatDAOException {
+		message.setCreatedAt(Instant.now());
+		chatDAO.addMessage(message);
+		Chat chat = chatDAO.getChat(message.getChatId());
+		MessageEvent event = new MessageEvent("NEW_MESSAGE", message, chat, Instant.now(),
+				chatDAO.getParticipiants(message.getChatId()));
+		notify(event);
 	}
 
 	@Override
@@ -58,30 +50,24 @@ public class ChatServiceImpl implements ChatService {
 	}
 
 	@Override
-	public Collection<Message> getMessages(Long chatId) throws ChatServiceException {
-		try {
-			Collection<Message> messages = chatDAO.getChatMessages(chatId);
-			return messages;
-		} catch (ChatDAOException e) {
-			e.printStackTrace();
-			throw new ChatServiceException(500, e.getMessage());
-		}
+	public Collection<Message> getMessages(Long chatId) throws ChatDAOException {
+		Collection<Message> messages = chatDAO.getChatMessages(chatId);
+		return messages;
 	}
 
 	@Override
-	public Message getMessage(Long messageId) throws ChatServiceException {
-		try {
-			Message message = chatDAO.getMessage(messageId);
-			return message;
-		} catch (ChatDAOException e) {
-			e.printStackTrace();
-			throw new ChatServiceException(500, e.getMessage());
-		}
+	public Message getMessage(Long messageId) throws ChatDAOException {
+		Message message = chatDAO.getMessage(messageId);
+		return message;
 	}
 
 	@Override
-	public void deleteMessage(Long messageId) throws ChatServiceException {
-
+	public void deleteMessage(Long messageId) throws ChatDAOException {
+		Message msg = chatDAO.getMessage(messageId);
+		chatDAO.removeMessage(msg.getMessageId());
+		MessageEvent event = new MessageEvent("DELETED_MESSAGE", msg, chatDAO.getChat(msg.getChatId()), Instant.now(),
+				chatDAO.getParticipiants(msg.getChatId()));
+		notify(event);
 	}
 
 	@Override
@@ -161,6 +147,15 @@ public class ChatServiceImpl implements ChatService {
 	@Override
 	public void update(Chat chat) throws ChatDAOException {
 		chatDAO.updateChat(chat);
-		
+
+	}
+
+	@Override
+	public void update(Message message) throws ChatDAOException {
+		chatDAO.updateMessage(message);
+		MessageEvent event = new MessageEvent("UPDATED_MESSAGE", message, chatDAO.getChat(message.getChatId()),
+				Instant.now(), chatDAO.getParticipiants(message.getChatId()));
+		notify(event);
+
 	}
 }

@@ -4,6 +4,7 @@
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/dao/chat/ChatCreationHandler.java
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/converter/user/AuthMultipartConverter.java
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/dao/user/DatabaseUserDaoImpl.java
+/home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/converter/message/JSONMessageConverter.java
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/dao/user/UserHandler.java
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/model/chat/MessageFile.java
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/converter/user/UserPhotoConverter.java
@@ -18,6 +19,7 @@
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/model/user/UserBuilder.java
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/service/chat/MessageEventListener.java
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/service/chat/ChatService.java
+/home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/converter/message/MessageFileConverter.java
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/converter/MultipartFormParser.java
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/exception/DaoIllegalException.java
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/converter/chat/ChatJSONConverter.java
@@ -46,10 +48,12 @@
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/exception/chat/ChatTypeUnsupportedException.java
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/dao/chat/PrivateChatCreationHandler.java
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/service/chat/ChatServiceImpl.java
+/home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/converter/message/MultiPartMessageConverter.java
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/converter/user/AuthConverter.java
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/dto/user/UserRegistrationRequest.java
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/service/chat/ParticipantEvent.java
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/controller/UserController.java
+/home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/dto/chat/MessageListResponse.java
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/service/chat/ChatServiceException.java
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/service/chat/ChatEvent.java
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/exception/user/UserPhotoNotFoundException.java
@@ -63,6 +67,7 @@
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/converter/chat/JSONParticipantConverter.java
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/model/user/AuthenticationBuilder.java
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/converter/user/JsonUserConverter.java
+/home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/converter/message/JSONMessageListConverter.java
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/filter/AuthenticationFilter.java
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/exception/user/NotValidAuthDataException.java
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/controller/ChatController.java

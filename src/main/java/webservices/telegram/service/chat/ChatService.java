@@ -9,11 +9,13 @@ import webservices.telegram.model.chat.Message;
 
 public interface ChatService {
 
-	public void add(Message message) throws ChatServiceException;
+	public void add(Message message) throws ChatDAOException;
 
 	public void add(Chat chat) throws ChatDAOException, ChatTypeUnsupportedException;
 
 	public void update(Chat chat) throws ChatDAOException;
+
+	public void update(Message message) throws ChatDAOException;
 
 	public void addParticipant(Long chatId, Long userId) throws ChatDAOException;
 
@@ -21,13 +23,13 @@ public interface ChatService {
 
 	public Chat getChat(Long chatId) throws ChatDAOException;
 
-	public Collection<Message> getMessages(Long chatId) throws ChatServiceException;
+	public Collection<Message> getMessages(Long chatId) throws ChatDAOException;
 
-	public Message getMessage(Long messageId) throws ChatServiceException;
+	public Message getMessage(Long messageId) throws ChatDAOException;
 
 	public void removeParticipant(Long chatId, Long userId) throws ChatDAOException;
 
-	public void deleteMessage(Long messageId) throws ChatServiceException;
+	public void deleteMessage(Long messageId) throws ChatDAOException;
 
 	public void deleteChat(Long chatId) throws ChatDAOException;
 

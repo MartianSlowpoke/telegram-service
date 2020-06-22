@@ -18,7 +18,8 @@ public class MessageJsonMapper {
 		json.put("sender", UserJsonMapper.toJSONObject(message.getSender()));
 		json.put("createdAt", message.getCreatedAt().toString());
 		if (message.hasFile()) {
-			String URL = "http://localhost:8080/messenger/messages/" + message.getMessageId() + "/file";
+			String URL = "http://localhost:8080/telegram/chats/" + message.getChatId() + "/" + message.getMessageId()
+					+ "/file";
 			json.put("file", URL);
 		}
 		return json;

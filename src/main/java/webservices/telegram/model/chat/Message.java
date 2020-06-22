@@ -13,9 +13,24 @@ public class Message {
 	private Long chatId;
 	private Instant createdAt;
 
+	public Message() {
+	}
+
 	public Message(User sender, String content, Instant createdAt, Long chatId) {
 		this(null, sender, content, null, createdAt);
 		this.chatId = chatId;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public void setFile(MessageFile file) {
+		this.file = file;
+	}
+
+	public void setCreatedAt(Instant createdAt) {
+		this.createdAt = createdAt;
 	}
 
 	public Message(User sender, String content, MessageFile file, Instant createdAt) {

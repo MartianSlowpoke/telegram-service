@@ -13,6 +13,7 @@ webservices/telegram/converter/user/UserRegistrationMultipartConverter.class
 webservices/telegram/exception/UserDaoException.class
 webservices/telegram/controller/AuthenticationController.class
 webservices/telegram/dao/user/GeneratedKeyHandler.class
+webservices/telegram/converter/message/JSONMessageListConverter.class
 webservices/telegram/filter/AuthenticationFilter.class
 webservices/telegram/model/user/User.class
 webservices/telegram/dto/user/UserRegistrationRequest.class
@@ -29,10 +30,12 @@ webservices/telegram/model/user/UserPhoto.class
 webservices/telegram/exception/chat/ChatTypeUnsupportedException.class
 webservices/telegram/dao/user/UserPhotoHandler.class
 webservices/telegram/dao/chat/PrivateChatCreationHandler.class
+webservices/telegram/converter/message/JSONMessageConverter.class
 webservices/telegram/dao/user/DatabaseUserDaoImpl$2.class
 webservices/telegram/converter/ChatJsonMapper.class
 webservices/telegram/exception/user/UserDAOException.class
 webservices/telegram/model/chat/MessageFile.class
+webservices/telegram/converter/message/MessageFileConverter.class
 webservices/telegram/exception/user/NotValidAuthenticationRequestDataException.class
 webservices/telegram/service/chat/MessageEvent.class
 webservices/telegram/model/chat/ChatPhoto.class
@@ -59,6 +62,8 @@ webservices/telegram/exception/DaoIllegalException.class
 webservices/telegram/converter/chat/ChatMultipartConverter.class
 webservices/telegram/converter/chat/ChatPhotoConverter.class
 webservices/telegram/dao/user/UserDAO.class
+webservices/telegram/converter/message/MultiPartMessageConverter.class
+webservices/telegram/dto/chat/MessageListResponse.class
 webservices/telegram/exception/chat/ChatDAOException.class
 webservices/telegram/converter/user/JsonUserConverter.class
 webservices/telegram/converter/user/UserListJsonConverter.class

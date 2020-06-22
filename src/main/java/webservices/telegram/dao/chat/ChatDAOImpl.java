@@ -31,7 +31,7 @@ public class ChatDAOImpl implements ChatDAO {
 
 	protected final static String SQL_INSERT_PRIVATE_CHAT = "INSERT INTO chat (chat_type,created_at) VALUES (?,?);";
 	protected final static String SQL_INSERT_PARTICIPIANT = "INSERT INTO participiant (fk_user, fk_chat, created_at) VALUES (?,?,?);";
-	protected final String SQL_INSERT_GROUP_CHAT = "INSERT INTO chat (chat_type, description, fk_owner, fk_chat_photo) VALUES (?,?,?,?);";
+	protected final String SQL_INSERT_GROUP_CHAT = "INSERT INTO chat (chat_type,name, description, fk_owner, fk_chat_photo) VALUES (?,?,?,?,?);";
 	protected final String SQL_INSERT_MESSAGE = "INSERT INTO message (fk_chat, fk_sender,content,created_at, fkFile) VALUES (?,?,?,?,?);";
 	protected final String SQL_INSERT_MESSAGE_FILE = "INSERT INTO messageFile (fileName,fileData) VALUES (?,?);";
 	protected final String SQL_INSERT_PARTICIPANT = "INSERT INTO participiant (fk_user, fk_chat, created_at) VALUES (?,?,?);";
@@ -48,6 +48,8 @@ public class ChatDAOImpl implements ChatDAO {
 	protected final String SQL_DELETE_MESSAGE = "DELETE FROM message WHERE message_id = ?;";
 	protected final String SQL_DELETE_MESSAGE_FILE = "DELETE FROM messageFile WHERE fileId = ?;";
 	protected final String SQL_DELETE_CHAT = "DELETE FROM chat WHERE chat_id = ?;";
+
+	protected final String SQL_UPDATE_CHAT_INFO = "UPDATE chat SET description=?,fk_chat_photo=? WHERE chat_id = ?;";
 
 	protected MysqlDataSource source;
 	private UserDAO userDAO;
@@ -334,6 +336,38 @@ public class ChatDAOImpl implements ChatDAO {
 			e.printStackTrace();
 			throw new ChatDAOException(e.getMessage());
 		}
+	}
+
+	@Override
+	public void updateChat(Chat chat) throws ChatDAOException {
+		try {
+			Connection connection = source.getConnection();
+			connection.setAutoCommit(false);
+			try (PreparedStatement statement = connection.prepareStatement(SQL_UPDATE_CHAT_INFO,
+					Statement.NO_GENERATED_KEYS)) {
+				Long fkChatPhoto = null;
+				if (chat.getPhoto() != null) {
+					fkChatPhoto = insertPhoto(chat.getPhoto(),
+							connection.prepareStatement(SQL_INSERT_MESSAGE_FILE, Statement.RETURN_GENERATED_KEYS));
+				}
+				setParams(statement, chat.getDescription(), fkChatPhoto, chat.getChatId());
+				statement.execute();
+				connection.commit();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new ChatDAOException(e.getMessage());
+		}
+	}
+
+	private Long insertPhoto(ChatPhoto photo, PreparedStatement statement) throws SQLException {
+		if (photo != null) {
+			setParams(statement, photo.getName(), photo.getData());
+			statement.execute();
+			Long fk_chat_photo = getGeneratedKey(statement.getGeneratedKeys());
+			return fk_chat_photo;
+		}
+		return null;
 	}
 
 }

@@ -1,16 +1,15 @@
 package webservices.telegram.model.chat;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collection;
 
 import webservices.telegram.model.user.User;
-import webservices.telegram.model.user.UserBuilder;
 
 public class Chat {
 
 	private Long chatId;
 	private String type;
+	private String name;
 	private String description;
 	private User creator;
 	private Message lastMessage;
@@ -21,26 +20,28 @@ public class Chat {
 	public Chat() {
 	}
 
-	public Chat(Collection<String> participants) {
-		this.participiants = new ArrayList<>();
-		UserBuilder builder = new UserBuilder();
-		for (String str : participants) {
-			this.participiants.add(builder.id(Long.parseLong(str)).build());
-		}
-	}
-
 	public Chat(String type, Instant createdAt, Collection<User> participiants) {
 		this.type = type;
 		this.createdAt = createdAt;
 		this.participiants = participiants;
 	}
 
-	public Chat(Long chatId, String type, Message lastMessage, Instant createdAt, Collection<User> participiants) {
+	public Chat(Long chatId, String type, String name, Message lastMessage, Instant createdAt,
+			Collection<User> participiants) {
 		this.chatId = chatId;
 		this.type = type;
+		this.name = name;
 		this.lastMessage = lastMessage;
 		this.createdAt = createdAt;
 		this.participiants = participiants;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public void setChatId(Chat this, Long chatId) {

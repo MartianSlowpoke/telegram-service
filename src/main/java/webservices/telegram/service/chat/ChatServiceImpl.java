@@ -157,4 +157,10 @@ public class ChatServiceImpl implements ChatService {
 	public Chat getChat(Long chatId) throws ChatDAOException {
 		return chatDAO.getChat(chatId);
 	}
+
+	@Override
+	public void update(Chat chat) throws ChatDAOException {
+		chatDAO.updateChat(chat);
+		
+	}
 }

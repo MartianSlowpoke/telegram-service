@@ -16,6 +16,8 @@ public interface ChatDAO {
 
 	public void addParticipant(Chat chat, User user) throws ChatDAOException;
 
+	public void updateChat(Chat chat) throws ChatDAOException;
+
 	public void removeParticipant(Chat chat, User user) throws ChatDAOException;
 
 	public Chat getChat(Long chatId) throws ChatDAOException;

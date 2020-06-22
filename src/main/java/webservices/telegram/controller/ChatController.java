@@ -92,6 +92,17 @@ public class ChatController {
 		service.deleteChat(chatId);
 	}
 
+	@RequestMapping(method = RequestMethod.PUT, value = "{chat-id}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@ResponseBody
+	public Chat updateChatInfo(@PathVariable("chat-id") Long chatId, @RequestBody Chat chat) throws ChatDAOException {
+		chat.setChatId(chatId);
+		Chat dbChat = service.getChat(chatId);
+		dbChat.setDescription(chat.getDescription());
+		dbChat.setPhoto(chat.getPhoto());
+		service.update(dbChat);
+		return dbChat;
+	}
+
 	@ExceptionHandler
 	@RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody

@@ -15,6 +15,7 @@ public class ChatJsonMapper {
 		JSONObject json = new JSONObject();
 		json.put("id", chat.getChatId());
 		json.put("type", chat.getType());
+		json.put("name", chat.getName());
 		json.put("description", chat.getDescription());
 		json.put("creator", UserJsonMapper.toJSONObject(chat.getCreator()));
 		if (chat.getLastMessage() != null)

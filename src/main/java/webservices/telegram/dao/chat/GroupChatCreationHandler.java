@@ -34,8 +34,8 @@ public class GroupChatCreationHandler implements ChatCreationHandler {
 				}
 				try (PreparedStatement statement = connection.prepareStatement(chatDAO.SQL_INSERT_GROUP_CHAT,
 						Statement.RETURN_GENERATED_KEYS)) {
-					chatDAO.setParams(statement, chat.getType(), chat.getDescription(), chat.getCreator().getId(),
-							fkChatPhoto);
+					chatDAO.setParams(statement, chat.getType(), chat.getName(), chat.getDescription(),
+							chat.getCreator().getId(), fkChatPhoto);
 					statement.execute();
 					Long chatId = chatDAO.getGeneratedKey(statement.getGeneratedKeys());
 					chat.setChatId(chatId);

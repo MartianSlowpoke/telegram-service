@@ -17,6 +17,8 @@ import webservices.telegram.converter.MultipartFormParser;
 import webservices.telegram.exception.BadRequestDataException;
 import webservices.telegram.model.chat.Chat;
 import webservices.telegram.model.chat.ChatPhoto;
+import webservices.telegram.model.user.User;
+import webservices.telegram.model.user.UserBuilder;
 
 public class ChatMultipartConverter extends AbstractHttpMessageConverter<Chat> {
 
@@ -35,8 +37,10 @@ public class ChatMultipartConverter extends AbstractHttpMessageConverter<Chat> {
 		try {
 			MultipartFormParser form = new MultipartFormParser();
 			form.parse(inputMessage);
-			Chat chat = new Chat(parse(form.get("participants")));
+			Chat chat = new Chat();
+			chat.setParticipiants(obtainUsers(form.get("participants")));
 			chat.setType(form.get("type"));
+			chat.setName(form.get("name"));
 			chat.setDescription(form.get("description"));
 			if (form.getFileItem("photo") != null) {
 				if (form.getFileItem("photo").getSize() != 0 && form.getFileName("photo") != null) {
@@ -57,12 +61,15 @@ public class ChatMultipartConverter extends AbstractHttpMessageConverter<Chat> {
 			throws IOException, HttpMessageNotWritableException {
 	}
 
-	private Collection<String> parse(String str) {
-		Collection<String> tokens = new ArrayList<>();
-		for (String token : str.split(";")) {
-			tokens.add(token);
+	private Collection<User> obtainUsers(String str) {
+		if (str != null) {
+			Collection<User> users = new ArrayList<>();
+			for (String token : str.split(";")) {
+				users.add(new UserBuilder().id(Long.parseLong(token)).build());
+			}
+			return users;
 		}
-		return tokens;
+		return null;
 	}
 
 }

@@ -36,6 +36,7 @@ public class MultiPartMessageConverter extends AbstractHttpMessageConverter<Mess
 			MultipartFormParser form = new MultipartFormParser();
 			form.parse(inputMessage);
 			Message msg = new Message();
+			msg.setIsRead(Boolean.valueOf(form.get("isRead")));
 			msg.setContent(form.get("content"));
 			if (form.getFileItem("file") != null) {
 				if (form.getFileItem("file").getSize() != 0 && form.getFileName("file") != null) {

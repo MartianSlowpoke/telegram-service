@@ -12,6 +12,7 @@ public class Message {
 	private MessageFile file;
 	private Long chatId;
 	private Instant createdAt;
+	private Boolean isRead;
 
 	public Message() {
 	}
@@ -85,8 +86,41 @@ public class Message {
 		return file;
 	}
 
+	public Boolean getIsRead() {
+		return isRead;
+	}
+
+	public void setIsRead(Boolean isRead) {
+		this.isRead = isRead;
+	}
+
 	public boolean hasFile() {
 		if (file == null)
+			return false;
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((messageId == null) ? 0 : messageId.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Message other = (Message) obj;
+		if (messageId == null) {
+			if (other.messageId != null)
+				return false;
+		} else if (!messageId.equals(other.messageId))
 			return false;
 		return true;
 	}

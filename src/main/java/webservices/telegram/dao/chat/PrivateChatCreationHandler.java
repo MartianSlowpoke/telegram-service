@@ -30,7 +30,8 @@ public class PrivateChatCreationHandler implements ChatCreationHandler {
 			connection.setAutoCommit(false);
 			try (PreparedStatement statement = chatDAO.getPreparedStatement(ChatDAOImpl.SQL_INSERT_PRIVATE_CHAT,
 					Statement.RETURN_GENERATED_KEYS)) {
-				chatDAO.setParams(statement, chat.getType(), Timestamp.from(chat.getCreatedAt()));
+				chatDAO.setParams(statement, chat.getType(), chat.getCreator().getId(),
+						Timestamp.from(chat.getCreatedAt()));
 				statement.executeUpdate();
 				chat.setChatId(chatDAO.getGeneratedKey(statement.getGeneratedKeys()));
 			}
@@ -41,6 +42,7 @@ public class PrivateChatCreationHandler implements ChatCreationHandler {
 							Timestamp.from(chat.getCreatedAt()) });
 					statement.execute();
 				}
+				chatDAO.addParticipant(chat, chat.getCreator());
 			}
 			chat.setParticipiants(chatDAO.getParticipiants(chat.getChatId()));
 			connection.commit();

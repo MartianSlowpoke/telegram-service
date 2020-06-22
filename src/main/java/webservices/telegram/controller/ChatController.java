@@ -75,6 +75,13 @@ public class ChatController {
 		service.addParticipant(chat_id, req.getUserId());
 	}
 
+	@RequestMapping(method = RequestMethod.DELETE, value = "{chat-id}/messages/{message-id}/isRead")
+	@ResponseStatus(code = HttpStatus.OK)
+	public void updateReadStatusFlag(@SessionAttribute("user") User user, @PathVariable("message-id") Long messageId)
+			throws ChatDAOException {
+		service.updateReadStatus(user, service.getMessage(messageId));
+	}
+
 	@RequestMapping(method = RequestMethod.DELETE, value = "{chat-id}/participants/{user-id}", consumes = MediaType.ALL_VALUE, produces = MediaType.ALL_VALUE)
 	@ResponseStatus(code = HttpStatus.OK)
 	public void removeParticipant(@PathVariable("chat-id") Long chatId, @PathVariable("user-id") Long userId)
@@ -119,8 +126,9 @@ public class ChatController {
 
 	@RequestMapping(method = RequestMethod.GET, value = "{chat-id}/messages", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public MessageListResponse getMessages(@PathVariable("chat-id") Long chatId) throws ChatDAOException {
-		Collection<Message> messages = service.getMessages(chatId);
+	public MessageListResponse getMessages(@SessionAttribute("user") User initiator,
+			@PathVariable("chat-id") Long chatId) throws ChatDAOException {
+		Collection<Message> messages = service.getMessages(initiator, chatId);
 		return new MessageListResponse(messages);
 	}
 

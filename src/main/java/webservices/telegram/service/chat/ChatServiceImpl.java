@@ -28,6 +28,7 @@ public class ChatServiceImpl implements ChatService {
 	@Override
 	public void add(Message message) throws ChatDAOException {
 		message.setCreatedAt(Instant.now());
+		message.setIsRead(false);
 		chatDAO.addMessage(message);
 		Chat chat = chatDAO.getChat(message.getChatId());
 		MessageEvent event = new MessageEvent("NEW_MESSAGE", message, chat, Instant.now(),
@@ -50,8 +51,20 @@ public class ChatServiceImpl implements ChatService {
 	}
 
 	@Override
-	public Collection<Message> getMessages(Long chatId) throws ChatDAOException {
+	public Collection<Message> getMessages(User initiator, Long chatId) throws ChatDAOException {
 		Collection<Message> messages = chatDAO.getChatMessages(chatId);
+		for (Message message : messages) {
+			message.setIsRead(true);
+		}
+		Chat chat = chatDAO.getChat(chatId);
+		for (User participant : chat.getParticipiants()) {
+			Collection<Message> unreadMessages = chatDAO.getUnreadMessages(participant, chat);
+			for (Message message : messages) {
+				if (unreadMessages.contains(message)) {
+					message.setIsRead(false);
+				}
+			}
+		}
 		return messages;
 	}
 
@@ -157,5 +170,14 @@ public class ChatServiceImpl implements ChatService {
 				Instant.now(), chatDAO.getParticipiants(message.getChatId()));
 		notify(event);
 
+	}
+
+	@Override
+	public void updateReadStatus(User participant, Message message) throws ChatDAOException {
+		message.setIsRead(true);
+		chatDAO.updateReadStatus(participant, message);
+		MessageEvent event = new MessageEvent("READ_MESSAGE", chatDAO.getMessage(message.getMessageId()),
+				chatDAO.getChat(message.getChatId()), Instant.now(), chatDAO.getParticipiants(message.getChatId()));
+		notify(event);
 	}
 }

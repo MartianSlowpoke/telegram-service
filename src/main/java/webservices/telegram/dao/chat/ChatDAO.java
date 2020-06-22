@@ -20,6 +20,8 @@ public interface ChatDAO {
 
 	public void updateMessage(Message message) throws ChatDAOException;
 
+	public void updateReadStatus(User user, Message message) throws ChatDAOException;
+
 	public void removeParticipant(Chat chat, User user) throws ChatDAOException;
 
 	public Chat getChat(Long chatId) throws ChatDAOException;
@@ -31,6 +33,8 @@ public interface ChatDAO {
 	public Collection<Message> getChatMessages(Long chatId) throws ChatDAOException;
 
 	public Collection<User> getParticipiants(Long chatId) throws ChatDAOException;
+
+	public Collection<Message> getUnreadMessages(User participant, Chat chat) throws ChatDAOException;
 
 	public void deleteChat(Long chatId) throws ChatDAOException;
 

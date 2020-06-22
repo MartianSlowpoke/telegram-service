@@ -29,7 +29,7 @@ import webservices.telegram.model.user.User;
 
 public class ChatDAOImpl implements ChatDAO {
 
-	protected final static String SQL_INSERT_PRIVATE_CHAT = "INSERT INTO chat (chat_type,created_at) VALUES (?,?);";
+	protected final static String SQL_INSERT_PRIVATE_CHAT = "INSERT INTO chat (chat_type,fk_owner, created_at) VALUES (?,?,?);";
 	protected final static String SQL_INSERT_PARTICIPIANT = "INSERT INTO participiant (fk_user, fk_chat, created_at) VALUES (?,?,?);";
 	protected final String SQL_INSERT_GROUP_CHAT = "INSERT INTO chat (chat_type,name, description, fk_owner, fk_chat_photo) VALUES (?,?,?,?,?);";
 	protected final String SQL_INSERT_MESSAGE = "INSERT INTO message (fk_chat, fk_sender,content,created_at, fkFile) VALUES (?,?,?,?,?);";
@@ -37,6 +37,7 @@ public class ChatDAOImpl implements ChatDAO {
 	protected final String SQL_INSERT_PARTICIPANT = "INSERT INTO participiant (fk_user, fk_chat, created_at) VALUES (?,?,?);";
 	protected final String SQL_REMOVE_PARTICIPANT = "DELETE FROM participiant WHERE fk_user = ? AND fk_chat = ?;";
 	protected final String SQL_ADD_CHAT_LAST_MESSAGE = "UPDATE chat SET fk_last_message = ? WHERE chat_id = ?;";
+	protected final String SQL_ADD_UNREAD_MESSAGE = "INSERT INTO unread_messages (fk_user, fk_message) VALUES (?,?);";
 
 	protected final String SQL_GET_PARTICIPIANTS = "SELECT fk_user,fk_chat FROM participiant WHERE fk_chat = ?;";
 	protected final String SQL_GET_CHATS_ID_OF_PARTICIPIANT = "SELECT fk_chat FROM participiant WHERE fk_user = ?;";
@@ -45,11 +46,13 @@ public class ChatDAOImpl implements ChatDAO {
 	protected final String SQL_GET_MESSAGE_BY_ID = "SELECT message_id,fk_chat,fk_sender,content,fkFile,created_at FROM message WHERE message_id = ?";
 	protected final String SQL_GET_MESSAGE_FILE = "SELECT fileName,fileData FROM messageFile WHERE fileId = ?;";
 	protected final String SQL_GET_LAST_MESSAGE_ACCESSOR = "SELECT message_id FROM message WHERE message_id < ? AND fk_chat = ? LIMIT 1;";
+	protected final String SQL_GET_UNREAD_MESSAGES = "SELECT u.id, u.fk_user, u.fk_message, m.fk_chat FROM unread_messages u INNER JOIN message m ON u.fk_message = m.message_id WHERE m.fk_chat = ? AND u.fk_user = ?;";
 
 	protected final String SQL_DELETE_PARTICIPANT = "DELETE FROM participiant WHERE fk_user = ? AND fk_chat = ?;";
 	protected final String SQL_DELETE_MESSAGE = "DELETE FROM message WHERE message_id = ?;";
 	protected final String SQL_DELETE_MESSAGE_FILE = "DELETE FROM messageFile WHERE fileId = ?;";
 	protected final String SQL_DELETE_CHAT = "DELETE FROM chat WHERE chat_id = ?;";
+	protected final String SQL_DELETE_UNREAD_MESSAGE = "DELETE FROM unread_messages WHERE fk_user = ? AND fk_message = ?;";
 
 	protected final String SQL_UPDATE_CHAT_LAST_MESSAGE = "UPDATE chat SET fk_last_message = ? WHERE chat_id = ?;";
 	protected final String SQL_UPDATE_CHAT_INFO = "UPDATE chat SET description=?,fk_chat_photo=? WHERE chat_id = ?;";
@@ -85,18 +88,19 @@ public class ChatDAOImpl implements ChatDAO {
 			if (message.hasFile()) {
 				fileId = addMessageFile(message);
 			}
-			try (PreparedStatement statement = getPreparedStatement(SQL_INSERT_MESSAGE,
+			try (PreparedStatement statement = connection.prepareStatement(SQL_INSERT_MESSAGE,
 					Statement.RETURN_GENERATED_KEYS)) {
 				setParams(statement, message.getChatId(), message.getSender().getId(), message.getContent(),
 						Timestamp.from(message.getCreatedAt()), fileId);
 				statement.execute();
 				message.setMessageId(getGeneratedKey(statement.getGeneratedKeys()));
-				try (PreparedStatement statement2 = getPreparedStatement(SQL_ADD_CHAT_LAST_MESSAGE,
+				try (PreparedStatement statement2 = connection.prepareStatement(SQL_ADD_CHAT_LAST_MESSAGE,
 						Statement.NO_GENERATED_KEYS)) {
 					setParams(statement2, message.getMessageId(), message.getChatId());
 					statement2.execute();
 				}
 				message.setSender(userDAO.get(message.getSender().getId()));
+				markAsUnreadForAllParticipants(message);
 				connection.commit();
 			} catch (UserNotFoundException | UserDaoException e) {
 				e.printStackTrace();
@@ -107,6 +111,18 @@ public class ChatDAOImpl implements ChatDAO {
 			throw new ChatDAOException(e.getMessage());
 		}
 
+	}
+
+	private void markAsUnreadForAllParticipants(Message message) throws ChatDAOException, SQLException {
+		Connection connection = source.getConnection();
+		Collection<User> participants = getParticipiants(message.getChatId());
+		participants.remove(message.getSender());
+		try (PreparedStatement statement = connection.prepareStatement(SQL_ADD_UNREAD_MESSAGE)) {
+			for (User participant : participants) {
+				setParams(statement, participant.getId(), message.getMessageId());
+				statement.execute();
+			}
+		}
 	}
 
 	private Long addMessageFile(Message message) throws SQLException {
@@ -425,6 +441,36 @@ public class ChatDAOImpl implements ChatDAO {
 				statement.execute();
 			}
 			connection.commit();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new ChatDAOException(e.getMessage());
+		}
+	}
+
+	@Override
+	public Collection<Message> getUnreadMessages(User participant, Chat chat) throws ChatDAOException {
+		try (PreparedStatement statement = getPreparedStatement(SQL_GET_UNREAD_MESSAGES, Statement.NO_GENERATED_KEYS)) {
+			setParams(statement, chat.getChatId(), participant.getId());
+			ResultSet result = statement.executeQuery();
+			Collection<Message> unreadMessages = new ArrayList<>();
+			while (result.next()) {
+				unreadMessages.add(getMessage(result.getLong("fk_message")));
+			}
+			return unreadMessages;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new ChatDAOException(e.getMessage());
+		}
+	}
+
+	@Override
+	public void updateReadStatus(User user, Message message) throws ChatDAOException {
+		try {
+			Connection connection = source.getConnection();
+			try (PreparedStatement statement = connection.prepareStatement(SQL_DELETE_UNREAD_MESSAGE)) {
+				setParams(statement, user.getId(), message.getMessageId());
+				statement.execute();
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new ChatDAOException(e.getMessage());

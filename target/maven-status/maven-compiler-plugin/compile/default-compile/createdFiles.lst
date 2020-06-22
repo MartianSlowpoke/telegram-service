@@ -57,6 +57,7 @@ webservices/telegram/converter/chat/ChatListJSONConverter.class
 webservices/telegram/dto/chat/ParticipantRequest.class
 webservices/telegram/exception/DaoIllegalException.class
 webservices/telegram/converter/chat/ChatMultipartConverter.class
+webservices/telegram/converter/chat/ChatPhotoConverter.class
 webservices/telegram/dao/user/UserDAO.class
 webservices/telegram/exception/chat/ChatDAOException.class
 webservices/telegram/converter/user/JsonUserConverter.class

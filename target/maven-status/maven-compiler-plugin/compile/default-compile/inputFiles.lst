@@ -1,3 +1,4 @@
+/home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/converter/chat/ChatPhotoConverter.java
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/converter/MessageJsonMapper.java
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/dto/chat/ParticipantRequest.java
 /home/gorilla/eclipse-ee-workspace/telegram/src/main/java/webservices/telegram/dao/chat/ChatCreationHandler.java

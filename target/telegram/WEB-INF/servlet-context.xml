@@ -37,6 +37,8 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
 				class="webservices.telegram.converter.chat.ChatListJSONConverter" />
 			<bean
 				class="webservices.telegram.converter.chat.JSONParticipantConverter" />
+			<bean
+				class="webservices.telegram.converter.chat.ChatPhotoConverter" />
 		</mvc:message-converters>
 	</mvc:annotation-driven>
 

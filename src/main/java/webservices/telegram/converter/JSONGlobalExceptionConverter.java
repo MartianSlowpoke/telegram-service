@@ -16,11 +16,13 @@ import webservices.telegram.exception.ResourceNotFoundException;
 import webservices.telegram.exception.chat.ChatDAOException;
 import webservices.telegram.exception.chat.ChatTypeUnsupportedException;
 import webservices.telegram.exception.user.NotValidAuthDataException;
+import webservices.telegram.exception.user.UserDAOException;
 
 public class JSONGlobalExceptionConverter extends AbstractHttpMessageConverter<Exception> {
 
 	private Class<?>[] classes = new Class<?>[] { NotValidAuthDataException.class, BadRequestDataException.class,
-			ResourceNotFoundException.class, ChatDAOException.class, ChatTypeUnsupportedException.class };
+			ResourceNotFoundException.class, ChatDAOException.class, ChatTypeUnsupportedException.class,
+			UserDAOException.class };
 
 	public JSONGlobalExceptionConverter() {
 		super(MediaType.APPLICATION_JSON);

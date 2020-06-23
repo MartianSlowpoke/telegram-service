@@ -12,15 +12,19 @@ import webservices.telegram.exception.user.UserNotFoundException;
 import webservices.telegram.model.chat.Chat;
 import webservices.telegram.model.chat.Message;
 import webservices.telegram.model.user.User;
+import webservices.telegram.websocket.UserEventListener;
+import webservices.telegram.websocket.UserStateConnectionListener;
 
-public class ChatServiceImpl implements ChatService {
+public class ChatServiceImpl implements ChatService, UserStateConnectionListener {
 
 	private ChatDAO chatDAO;
 	private UserDAO userDAO;
 	private ChatEventListener chatHandler;
 	private MessageEventListener messageHandler;
+	private UserEventListener userHandler;
 
 	public ChatServiceImpl(ChatDAO chatDAO, UserDAO userDAO) {
+		super();
 		this.chatDAO = chatDAO;
 		this.userDAO = userDAO;
 	}
@@ -40,7 +44,8 @@ public class ChatServiceImpl implements ChatService {
 	public void add(Chat chat) throws ChatDAOException, ChatTypeUnsupportedException {
 		chat.setCreatedAt(Instant.now());
 		chatDAO.addChat(chat);
-		ChatEvent event = new ChatEvent("NEW_CHAT", chat, Instant.now(), chatDAO.getParticipiants(chat.getChatId()));
+		Collection<User> participants = chatDAO.getParticipiants(chat.getChatId());
+		ChatEvent event = new ChatEvent("NEW_CHAT", chat, Instant.now(), participants);
 		notify(event);
 	}
 
@@ -90,16 +95,6 @@ public class ChatServiceImpl implements ChatService {
 				chatDAO.getParticipiants(chat.getChatId()));
 		chatDAO.deleteChat(chatId);
 		notify(event);
-	}
-
-	@Override
-	public void setChatEventListener(ChatEventListener listener) {
-		chatHandler = listener;
-	}
-
-	@Override
-	public void setMessageEventListener(MessageEventListener listener) {
-		messageHandler = listener;
 	}
 
 	private void notify(MessageEvent messageEvent) {
@@ -180,4 +175,70 @@ public class ChatServiceImpl implements ChatService {
 				chatDAO.getChat(message.getChatId()), Instant.now(), chatDAO.getParticipiants(message.getChatId()));
 		notify(event);
 	}
+
+	@Override
+	public void onOpen(User user) throws UserDaoException {
+		user.setIsOnline(true);
+		userDAO.updateOnlineStatus(user);
+		UserEvent event = new UserEvent("ONLINE_USER", userDAO.get(user.getId()), Instant.now(),
+				"the user has just connected to the server", userDAO.getAll());
+		notify(event);
+	}
+
+	public void notify(UserEvent event) {
+		if (userHandler != null) {
+			userHandler.onEvent(event);
+		}
+	}
+
+	@Override
+	public void onClose(User user) throws UserDaoException {
+		user.setIsOnline(false);
+		user.setLastSeen(Instant.now());
+		userDAO.updateOnlineStatus(user);
+		UserEvent event = new UserEvent("ONLINE_USER", userDAO.get(user.getId()), Instant.now(),
+				"the user has just connected to the server", userDAO.getAll());
+		notify(event);
+	}
+
+	public ChatDAO getChatDAO() {
+		return chatDAO;
+	}
+
+	public void setChatDAO(ChatDAO chatDAO) {
+		this.chatDAO = chatDAO;
+	}
+
+	public UserDAO getUserDAO() {
+		return userDAO;
+	}
+
+	public void setUserDAO(UserDAO userDAO) {
+		this.userDAO = userDAO;
+	}
+
+	public ChatEventListener getChatHandler() {
+		return chatHandler;
+	}
+
+	public void setChatHandler(ChatEventListener chatHandler) {
+		this.chatHandler = chatHandler;
+	}
+
+	public MessageEventListener getMessageHandler() {
+		return messageHandler;
+	}
+
+	public void setMessageHandler(MessageEventListener messageHandler) {
+		this.messageHandler = messageHandler;
+	}
+
+	public UserEventListener getUserHandler() {
+		return userHandler;
+	}
+
+	public void setUserHandler(UserEventListener userHandler) {
+		this.userHandler = userHandler;
+	}
+
 }

@@ -193,7 +193,7 @@ public class DatabaseUserDaoImpl implements UserDAO {
 	}
 
 	@Override
-	public void updateOnlineStatus(User user) throws UserDaoException, IllegalArgumentException {
+	public void updateOnlineStatus(User user) throws UserDaoException{
 		try {
 			Connection connection = source.getConnection();
 			runner.update(connection, SQL_UPDATE_ONLINE_STATUS, user.getIsOnline(), user.getLastSeen(), user.getId());

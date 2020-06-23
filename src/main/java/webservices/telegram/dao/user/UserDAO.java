@@ -35,7 +35,7 @@ public interface UserDAO {
 
 	public void update(User user) throws UserDaoException, IllegalArgumentException;
 
-	public void updateOnlineStatus(User user) throws UserDaoException, IllegalArgumentException;
+	public void updateOnlineStatus(User user) throws UserDaoException;
 
 	public void delete(User user) throws UserDaoException, IllegalArgumentException;
 

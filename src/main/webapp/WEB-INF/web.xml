@@ -28,6 +28,10 @@
 	</filter-mapping>
 
 	<session-config>
-		<session-timeout>30</session-timeout>
+		<session-timeout>60</session-timeout>
 	</session-config>
+
+	<listener>
+		<listener-class>webservices.telegram.websocket.HttpSessionCollector</listener-class>
+	</listener>
 </web-app>

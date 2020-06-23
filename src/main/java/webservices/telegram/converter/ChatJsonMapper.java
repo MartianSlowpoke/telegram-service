@@ -7,6 +7,7 @@ import org.json.simple.JSONObject;
 
 import webservices.telegram.model.chat.Chat;
 import webservices.telegram.service.chat.ChatEvent;
+import webservices.telegram.service.chat.ParticipantEvent;
 
 public class ChatJsonMapper {
 
@@ -40,6 +41,17 @@ public class ChatJsonMapper {
 			array.add(temp);
 		}
 		json.put("chats", array);
+		return json.toJSONString();
+	}
+
+	@SuppressWarnings("unchecked")
+	public static String eventToJson(ParticipantEvent event) {
+		JSONObject json = new JSONObject();
+		json.put("type", event.getType());
+		json.put("chat", ChatJsonMapper.chatToJson(event.getChat()));
+		json.put("user", UserJsonMapper.toJSONObject(event.getUser()));
+		json.put("creationTime", event.getCreationTime().toString());
+		json.put("description", event.getDescription());
 		return json.toJSONString();
 	}
 

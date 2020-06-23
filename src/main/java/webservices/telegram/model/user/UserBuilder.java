@@ -10,7 +10,7 @@ public class UserBuilder {
 	protected String lastName;
 	protected String description;
 	protected UserPhoto photo;
-	protected String lastSeen;
+	protected Instant lastSeen;
 	protected Boolean isDeleted;
 	protected Boolean isOnline;
 	protected Instant createdAt;
@@ -49,7 +49,7 @@ public class UserBuilder {
 		return this;
 	}
 
-	public UserBuilder lastSeen(String lastSeen) {
+	public UserBuilder lastSeen(Instant lastSeen) {
 		this.lastSeen = lastSeen;
 		return this;
 	}

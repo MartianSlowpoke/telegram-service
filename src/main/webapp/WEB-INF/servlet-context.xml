@@ -72,6 +72,10 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
 	<bean id="chat-service"
 		class="webservices.telegram.service.chat.ChatServiceImpl">
 		<constructor-arg name="chatDAO" ref="chat-dao" />
+		<constructor-arg name="userDAO" ref="mysql-user-dao" />
+		<property name="chatHandler" ref="chat-event-handler" />
+		<property name="messageHandler" ref="message-event-handler" />
+		<property name="userHandler" ref="user-event-listener" />
 	</bean>
 
 	<!-- DAO -->
@@ -94,5 +98,39 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
 		<property name="url"
 			value="jdbc:mysql://localhost:3306/chat?serverTimezone=UTC" />
 	</bean>
+
+	<!-- WEBSOCKET SERVER -->
+
+	<bean id="web-socket-controller"
+		class="webservices.telegram.controller.WebSocketController">
+		<constructor-arg name="wsServer" ref="ws-server" />
+	</bean>
+
+	<bean id="ws-server"
+		class="webservices.telegram.websocket.MessengerUpdateServer">
+		<constructor-arg name="port" value="9090" />
+		<constructor-arg name="stateListener"
+			ref="chat-service" />
+		<constructor-arg name="permission"
+			ref="connection-permitter" />
+	</bean>
+
+	<bean id="chat-event-handler"
+		class="webservices.telegram.service.chat.ChatEventListenerImpl">
+		<constructor-arg name="ws" ref="ws-server" />
+	</bean>
+
+	<bean id="message-event-handler"
+		class="webservices.telegram.service.chat.MessageEventListenerImpl">
+		<constructor-arg name="ws" ref="ws-server" />
+	</bean>
+
+	<bean id="user-event-listener"
+		class="webservices.telegram.websocket.UserEventListenerImpl">
+		<constructor-arg name="ws" ref="ws-server" />
+	</bean>
+
+	<bean id="connection-permitter"
+		class="webservices.telegram.websocket.ConnectionPermissionImpl" />
 
 </beans>

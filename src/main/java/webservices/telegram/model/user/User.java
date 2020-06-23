@@ -10,7 +10,7 @@ public class User {
 	private String lastName;
 	private String description;
 	private UserPhoto photo;
-	private String lastSeen;
+	private Instant lastSeen;
 	private Boolean isDeleted;
 	private Boolean isOnline;
 	private Instant createdAt;
@@ -52,8 +52,12 @@ public class User {
 		return photo;
 	}
 
-	public String getLastSeen() {
+	public Instant getLastSeen() {
 		return lastSeen;
+	}
+
+	public void setLastSeen(Instant lastSeen) {
+		this.lastSeen = lastSeen;
 	}
 
 	public Boolean getIsDeleted() {
@@ -96,10 +100,6 @@ public class User {
 		if (photo == null)
 			return false;
 		return true;
-	}
-
-	public void setLastSeen(String lastSeen) {
-		this.lastSeen = lastSeen;
 	}
 
 	public void setIsDeleted(Boolean isDeleted) {

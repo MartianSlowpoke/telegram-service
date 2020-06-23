@@ -36,8 +36,4 @@ public interface ChatService {
 
 	public void deleteChat(Long chatId) throws ChatDAOException;
 
-	public void setChatEventListener(ChatEventListener listener);
-
-	public void setMessageEventListener(MessageEventListener listener);
-
 }

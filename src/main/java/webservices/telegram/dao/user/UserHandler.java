@@ -17,12 +17,14 @@ public class UserHandler implements ResultSetHandler<Collection<User>> {
 		Collection<User> users = new ArrayList<>();
 		while (rs.next()) {
 			UserBuilder builder = new UserBuilder();
-			User user = builder.id(rs.getLong("user_id")).login(rs.getString("login"))
-					.firstName(rs.getString("firstName")).lastName(rs.getString("lastName"))
-					.description(rs.getString("description")).lastSeen(rs.getString("lastSeen"))
+			builder.id(rs.getLong("user_id")).login(rs.getString("login")).firstName(rs.getString("firstName"))
+					.lastName(rs.getString("lastName")).description(rs.getString("description"))
 					.isDeleted(rs.getBoolean("isDeleted")).isOnline(rs.getBoolean("isOnline"))
-					.createdAt(rs.getTimestamp("createdAt").toInstant()).build();
-			users.add(user);
+					.createdAt(rs.getTimestamp("createdAt").toInstant());
+			if (rs.getTimestamp("lastSeen") != null) {
+				builder.lastSeen(rs.getTimestamp("lastSeen").toInstant());
+			}
+			users.add(builder.build());
 		}
 		return users;
 	}
